@@ -1,0 +1,25 @@
+    PUSH_LIT,
+    push_char
+    INCLUDE,
+
+    JMP_GT, //>
+    JMP_GTEQ, //>=
+    JMP_LT, //<
+    JMP_LTEQ, //<=
+    JMP_EQ, //==
+    JMP_NEQ, // != //18
+    
+    MEM_READ,
+    MEM_WRITE,
+    STR,
+    ARR,
+
+    RET,
+    CALL,
+
+    STOP,
+    PRINT,
+    SIZE,
+    WAIT,
+
+    FUNC,

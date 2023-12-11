@@ -1,0 +1,15 @@
+;;jmp label
+
+push 42
+push 27
+add
+push 2
+
+push a
+
+mult
+
+dump
+
+label:
+dump
