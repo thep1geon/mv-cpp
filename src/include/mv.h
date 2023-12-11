@@ -10,6 +10,7 @@
 
 class Mv {
     Stack<i32, 1024> m_stack;
+    Stack<i32, 1024> m_call_stack;
     std::vector<Inst::BaseInst*> m_program;
 
 public:

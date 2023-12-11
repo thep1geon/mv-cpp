@@ -34,9 +34,6 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                 else if (tok.value == "dupe") {
                     inst = new Inst::Dupe();
                 }
-                else if (tok.value == "dump") {
-                    inst = new Inst::Dump();
-                }
                 else if (tok.value == "add") {
                     inst = new Inst::Add();
                 }
@@ -53,11 +50,41 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                     inst = new Inst::Jump();
                     jump_inst = true;
                 }
+                else if (tok.value == "jmp_gt") {
+                    inst = new Inst::JumpGT();
+                    jump_inst = true;
+                }
+                else if (tok.value == "jmp_gteq") {
+                    inst = new Inst::JumpGTE();
+                    jump_inst = true;
+                }
+                else if (tok.value == "jmp_lt") {
+                    inst = new Inst::JumpLT();
+                    jump_inst = true;
+                }
+                else if (tok.value == "jmp_lteq") {
+                    inst = new Inst::JumpLTE();
+                    jump_inst = true;
+                }
+                else if (tok.value == "jmp_eq") {
+                    inst = new Inst::JumpEQ();
+                    jump_inst = true;
+                }
+                else if (tok.value == "jmp_neq") {
+                    inst = new Inst::JumpNEQ();
+                    jump_inst = true;
+                }
                 else if (tok.value == "mult") {
                     inst = new Inst::Multiply();
                 }
                 else if (tok.value == "div") {
                     inst = new Inst::Divide();
+                }
+                else if (tok.value == "dump") {
+                    inst = new Inst::Dump();
+                }
+                else if (tok.value == "print") {
+                    inst = new Inst::Print();
                 }
                 else if (tok.value == "mov") {
                     inst = new Inst::Move();

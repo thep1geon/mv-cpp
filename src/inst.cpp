@@ -22,8 +22,15 @@ void Inst::init_inst_map(void) {
     Inst::inst_map_str["dec"] = "dec";
 
     Inst::inst_map_str["jmp"] = "jmp";
+    Inst::inst_map_str["jmp_gt"] = "jmp_gt";
+    Inst::inst_map_str["jmp_gteq"] = "jmp_gteq";
+    Inst::inst_map_str["jmp_lt"] = "jmp_lt";
+    Inst::inst_map_str["jmp_lteq"] = "jmp_lteq";
+    Inst::inst_map_str["jmp_eq"] = "jmp_eq";
+    Inst::inst_map_str["jmp_neq"] = "jmp_neq";
 
     Inst::inst_map_str["dump"] = "dump";
+    Inst::inst_map_str["print"] = "print";
     Inst::inst_map_str["mov"] = "mov";
     Inst::inst_map_str["stop"] = "stop";
 }
@@ -33,7 +40,7 @@ using namespace Inst;
 // BaseInst
 Result<None> BaseInst::execute(Mv& mv) const {
     mv.get_stack();
-    return None();
+    return Void();
 }
 void BaseInst::print() const { std::cout << "Base Inst\n"; }
 
@@ -130,7 +137,7 @@ Result<None> Jump::execute(Mv& mv) const {
 
     if (m_literal.has_value()) {
         mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
-        return None();
+        return Void();
     }
 
     if (!m_operand_1.has_value()) {
@@ -141,7 +148,199 @@ Result<None> Jump::execute(Mv& mv) const {
 
     mv.m_inst_ptr = jp;
 
-    return None();
+    return Void();
+}
+
+JumpGT::JumpGT() {}
+void JumpGT::print() const {
+    std::cout << "JumpGT Inst\n";
+    std::cout << "    JumpGT Point: " << m_operand_1.get_value().get_ok() << "\n";
+}
+Result<None> JumpGT::execute(Mv& mv) const {
+    if (!m_operand_1.has_value()) {
+        return Err("JumpGT Condition missing");
+    }
+
+    if (mv.get_stack().peek().is_err()) {
+        return Err("JumpGT Empty stack");
+    }
+
+    if (mv.get_stack().peek().get_ok() > m_operand_1.get_value().get_ok()) {
+        usize jp = mv.m_inst_ptr;
+
+        if (m_literal.has_value()) {
+            mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
+            return Void();
+        }
+
+        if (m_operand_1.has_value()) {
+            jp = m_operand_1.get_value().get_ok();
+        }
+
+        mv.m_inst_ptr = jp;
+    }
+
+    return Void();
+}
+
+JumpGTE::JumpGTE() {}
+void JumpGTE::print() const {
+    std::cout << "JumpGTE Inst\n";
+    std::cout << "    JumpGTE Point: " << m_operand_1.get_value().get_ok() << "\n";
+}
+Result<None> JumpGTE::execute(Mv& mv) const {
+    if (!m_operand_1.has_value()) {
+        return Err("JumpGTE Condition missing");
+    }
+
+    if (mv.get_stack().peek().is_err()) {
+        return Err("JumpGTE Empty stack");
+    }
+
+    if (mv.get_stack().peek().get_ok() >= m_operand_1.get_value().get_ok()) {
+        usize jp = mv.m_inst_ptr;
+
+        if (m_literal.has_value()) {
+            mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
+            return Void();
+        }
+
+        if (m_operand_1.has_value()) {
+            jp = m_operand_1.get_value().get_ok();
+        }
+
+        mv.m_inst_ptr = jp;
+    }
+
+    return Void();
+}
+
+JumpLT::JumpLT() {}
+void JumpLT::print() const {
+    std::cout << "JumpLT Inst\n";
+    std::cout << "    JumpLT Point: " << m_operand_1.get_value().get_ok() << "\n";
+}
+Result<None> JumpLT::execute(Mv& mv) const {
+    if (!m_operand_1.has_value()) {
+        return Err("JumpLT Condition missing");
+    }
+
+    if (mv.get_stack().peek().is_err()) {
+        return Err("JumpLT Empty stack");
+    }
+
+    if (mv.get_stack().peek().get_ok() < m_operand_1.get_value().get_ok()) {
+        usize jp = mv.m_inst_ptr;
+
+        if (m_literal.has_value()) {
+            mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
+            return Void();
+        }
+
+        if (m_operand_1.has_value()) {
+            jp = m_operand_1.get_value().get_ok();
+        }
+
+        mv.m_inst_ptr = jp;
+    }
+
+    return Void();
+}
+
+JumpLTE::JumpLTE() {}
+void JumpLTE::print() const {
+    std::cout << "JumpLTE Inst\n";
+    std::cout << "    JumpLTE Point: " << m_operand_1.get_value().get_ok() << "\n";
+}
+Result<None> JumpLTE::execute(Mv& mv) const {
+    if (!m_operand_1.has_value()) {
+        return Err("JumpLTE Condition missing");
+    }
+
+    if (mv.get_stack().peek().is_err()) {
+        return Err("JumpLTE Empty stack");
+    }
+
+    if (mv.get_stack().peek().get_ok() <= m_operand_1.get_value().get_ok()) {
+        usize jp = mv.m_inst_ptr;
+
+        if (m_literal.has_value()) {
+            mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
+            return Void();
+        }
+
+        if (m_operand_1.has_value()) {
+            jp = m_operand_1.get_value().get_ok();
+        }
+
+        mv.m_inst_ptr = jp;
+    }
+
+    return Void();
+}
+
+JumpEQ::JumpEQ() {}
+void JumpEQ::print() const {
+    std::cout << "JumpEQ Inst\n";
+    std::cout << "    JumpEQ Point: " << m_operand_1.get_value().get_ok() << "\n";
+}
+Result<None> JumpEQ::execute(Mv& mv) const {
+    if (!m_operand_1.has_value()) {
+        return Err("JumpEQ Condition missing");
+    }
+
+    if (mv.get_stack().peek().is_err()) {
+        return Err("JumpEQ Empty stack");
+    }
+
+    if (mv.get_stack().peek().get_ok() == m_operand_1.get_value().get_ok()) {
+        usize jp = mv.m_inst_ptr;
+
+        if (m_literal.has_value()) {
+            mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
+            return Void();
+        }
+
+        if (m_operand_1.has_value()) {
+            jp = m_operand_1.get_value().get_ok();
+        }
+
+        mv.m_inst_ptr = jp;
+    }
+
+    return Void();
+}
+
+JumpNEQ::JumpNEQ() {}
+void JumpNEQ::print() const {
+    std::cout << "JumpNEQ Inst\n";
+    std::cout << "    JumpNEQ Point: " << m_operand_1.get_value().get_ok() << "\n";
+}
+Result<None> JumpNEQ::execute(Mv& mv) const {
+    if (!m_operand_1.has_value()) {
+        return Err("JumpNEQ Condition missing");
+    }
+
+    if (mv.get_stack().peek().is_err()) {
+        return Err("JumpNEQ Empty stack");
+    }
+
+    if (mv.get_stack().peek().get_ok() != m_operand_1.get_value().get_ok()) {
+        usize jp = mv.m_inst_ptr;
+
+        if (m_literal.has_value()) {
+            mv.m_inst_ptr = mv.m_label_table[m_literal.get_value().get_ok()].m_jump_point;
+            return Void();
+        }
+
+        if (m_operand_1.has_value()) {
+            jp = m_operand_1.get_value().get_ok();
+        }
+
+        mv.m_inst_ptr = jp;
+    }
+
+    return Void();
 }
 
 // Inst::Push
@@ -154,11 +353,20 @@ void Push::print() const {
     std::cout << "    Push Value: " << m_operand_1.get_value().get_ok() << "\n";
 }
 Result<None> Push::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("Failed to perform Push inst");
+    if (m_literal.has_value()) {
+        std::string lit = m_literal.get_value().get_ok();
+        for (char c : lit) {
+            mv.get_stack().push(c);
+        }
+
+        return Void();
     }
 
-    return mv.get_stack().push(m_operand_1.get_value().get_ok());
+    else if (m_operand_1.has_value()) {
+        return mv.get_stack().push(m_operand_1.get_value().get_ok());
+    } 
+
+    return Err("Faled to preform Push Inst");
 }
 
 // Inst::Pop
@@ -175,7 +383,7 @@ Result<None> Pop::execute(Mv& mv) const {
         mv.registers[m_operand_1.get_value().get_ok()] = r.get_ok(); 
     }
 
-    return None();
+    return Void();
 }
 
 // Inst::Dupe
@@ -210,7 +418,7 @@ Result<None> Swap::execute(Mv& mv) const {
         return Err("Failed to perform Swap inst: final pushes");
     }
 
-    return None();
+    return Void();
 }
 
 // Inst::Dump
@@ -218,7 +426,24 @@ Dump::Dump() {}
 void Dump::print() const {std::cout << "Dump Inst\n";}
 Result<None> Dump::execute(Mv& mv) const {
     mv.get_stack().print();
-    return None();
+    return Void();
+}
+
+Print::Print() {}
+void Print::print() const {std::cout << "Print Inst\n";}
+Result<None> Print::execute(Mv& mv) const {
+    Stack s = mv.get_stack();
+    Stack<i32, 1024> ss;
+
+    while (s.get_len() > 0) {
+        ss.push(s.pop().get_ok());
+    }
+
+    while (ss.get_len() > 0) {
+        std::cout << (char)ss.pop().get_ok();
+    }
+
+    return Void();
 }
 
 Move::Move() {}
@@ -237,7 +462,7 @@ Result<None> Move::execute(Mv& mv) const {
     }
 
     mv.registers[m_operand_1.get_value().get_ok()] = m_operand_2.get_value().get_ok();
-    return None();
+    return Void();
 }
 
 
@@ -245,12 +470,12 @@ Stop::Stop() {}
 void Stop::print() const {std::cout << "Stop Inst\n";}
 Result<None> Stop::execute(Mv& mv) const {
     mv.m_halt = true;
-    return None();
+    return Void();
 }
 
 LabelInst::LabelInst() {}
 void LabelInst::print() const {std::cout << "Label Inst\n";}
 Result<None> LabelInst::execute(Mv& mv) const {
     mv.m_inst_ptr += 0;
-    return None();
+    return Void();
 }

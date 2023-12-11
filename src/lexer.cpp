@@ -85,20 +85,20 @@ std::vector<Token> Lexer::tokenize_line() {
             tokens.push_back(Token(TokenType::Int_Lit, buf));
             buf.clear();
         }
-        else if (peek().get_ok() == '"') {
+        else if (peek().get_ok() == '"' || peek().get_ok() == '\'') {
             m_cursor++;
-            while (peek().is_ok() && peek().get_ok() != '"') {
+            while (peek().is_ok() && peek().get_ok() != '"' && peek().get_ok() != '\'') {
                 buf.push_back(consume());
             }  
 
-            if (peek().is_err() || peek().get_ok() == '"') {
+            if (peek().is_err() || peek().get_ok() == '"' || peek().get_ok() == '\'') {
                 m_cursor++;
             }
 
             tokens.push_back(Token(TokenType::Str_Lit, buf));
             buf.clear();
         }
-        else if (peek().get_ok() == ';') {
+        else if (peek().get_ok() == '#') {
             break;
         }
         else if (std::isspace(peek().get_ok()) || std::isblank(peek().get_ok())) {

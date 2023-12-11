@@ -64,6 +64,42 @@ struct Jump : public BaseInst {
     Result<None> execute(Mv& mv) const override; 
 };
 
+struct JumpGT : public BaseInst {
+    JumpGT();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override; 
+};
+
+struct JumpGTE : public BaseInst {
+    JumpGTE();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override; 
+};
+
+struct JumpLT : public BaseInst {
+    JumpLT();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override; 
+};
+
+struct JumpLTE : public BaseInst {
+    JumpLTE();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override; 
+};
+
+struct JumpEQ : public BaseInst {
+    JumpEQ();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override; 
+};
+
+struct JumpNEQ : public BaseInst {
+    JumpNEQ();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override; 
+};
+
 // Stack related Insts
 struct Push : public BaseInst {
     Push();
@@ -94,6 +130,13 @@ struct Swap : public BaseInst {
 struct Dump : public BaseInst {
 public:
     Dump();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Print : public BaseInst {
+public:
+    Print();
     void print() const override;
     Result<None> execute(Mv& mv) const override;
 };

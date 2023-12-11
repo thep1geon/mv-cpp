@@ -36,7 +36,7 @@ Result<None> Mv::run() {
 
     }
 
-    return None();
+    return Void();
 }
 
 void Mv::add_inst(Inst::BaseInst* i) {
@@ -61,5 +61,5 @@ Result<None> Mv::program_from_file(const char* filepath) {
 
     m_program = program;
 
-    return None();
+    return Void();
 }

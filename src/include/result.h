@@ -69,6 +69,6 @@ public:
     }
 };
 
-#define None() Result<None>()
+#define Void() Result<None>()
 
 #endif  //__RESULT_H
