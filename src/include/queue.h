@@ -25,7 +25,7 @@ public:
         
         m_data[m_size++] = push_data;
         
-        return None();
+        return Void();
     }
 
     Result<T> pop() {

@@ -1,24 +1,46 @@
 #include "include/mv.h"
+#include "include/label.h"
 #include "include/result.h"
 #include "include/lexer.h"
 #include "include/stack.h"
 #include "include/parser.h"
+#include "include/types.h"
+#include <cstring>
+#include <map>
 #include <vector>
+#include <algorithm>
 
 Mv::Mv() {
-    m_stack = Stack<i32, 1024>();
-    m_program = std::vector<Inst::BaseInst*>();
-    m_inst_ptr = 0;
-    m_halt = false;
+    m_stack       = Stack<i32, 1024>();
+    m_call_stack  = Stack<i32, 1024>();
+    m_program     = std::vector<Inst::BaseInst*>();
+    m_label_table = std::map<std::string, Label::Label>();
+    m_inst_ptr    = 0;
+    m_halt        = false;
+    m_debug       = false;
+
+    memset(heap, 0, 4096 * sizeof(i32));
 }
 
 Mv::~Mv() {
     for (usize i = 0; i < m_program.size(); ++i) {
         delete m_program[i];
     }
+
 }
 
 Result<None> Mv::run() {
+    if (m_debug) {
+        for (const auto& [key, val] : m_label_table) {
+            std::cout << "[ " << key << " ] = " 
+                << "Label( " << val.m_name << " , " << val.m_jump_point << " )\n"; 
+        }
+
+        for (auto& inst : m_program) {
+            inst->print();
+        }
+    }
+
     for (; m_inst_ptr < m_program.size() && !m_halt; ++m_inst_ptr) {
         Result r_inst = m_program[m_inst_ptr];
 
@@ -27,6 +49,12 @@ Result<None> Mv::run() {
         }
 
         Inst::BaseInst* inst = r_inst.get_ok();
+
+        if (m_debug) {
+            std::cout << "=====================\n";
+            inst->print();
+            std::cout << "=====================\n";
+        }
 
         Result r_exec = execute_inst(*inst);
 
@@ -62,4 +90,42 @@ Result<None> Mv::program_from_file(const char* filepath) {
     m_program = program;
 
     return Void();
+}
+
+Result<i32> Mv::include_program_from_file(const char* filepath) {
+    Lexer l(filepath); 
+
+    std::vector<std::vector<Token>> tokens = l.tokenize_file();
+
+    Parser p(tokens);
+    std::vector<Inst::BaseInst*> program = p.parse_tokens(*this);
+    std::reverse(program.begin(), program.end());
+
+    for (auto inst : program) {
+        m_program.insert(m_program.begin(), inst);
+    }
+
+    return program.size();
+}
+
+i32 Mv::find_memory(usize len) {
+    for (size_t i = 0; i < 4096 - len; i++) {
+        size_t j;
+        for (j = 0; j < len; j++) {
+            if (heap[i + j] != 0) {
+                break; 
+            }
+
+            if (heap[i + j] == 0 && heap[i+j-1] != 0) {
+                break;
+            }
+        }
+
+        if (j == len) {
+            return i;
+        }
+    }
+
+    return -1;
+    // -1 if no space was found
 }

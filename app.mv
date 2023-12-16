@@ -1,3 +1,25 @@
-push "Hello World!"
-push 10
-print
+include "std.mv"
+include "main.mv"
+include "math.mv"
+
+push 0
+push 1
+
+dump
+
+push 2
+loop:
+pop 0
+dupe 1
+dupe 1
+add
+dump
+mov 0
+call Inc
+jmp_lt loop 12
+
+call push_32
+dump 0
+
+call Math
+dump 0

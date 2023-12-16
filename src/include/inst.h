@@ -11,7 +11,10 @@
 class Mv;
 
 namespace Inst {
+
 struct BaseInst {
+    i32 m_line_num = 0;
+    std::string m_file = "";
     Option<i32> m_operand_1 = Option<i32>();
     Option<i32> m_operand_2 = Option<i32>();
     Option<std::string> m_literal = Option<std::string>();
@@ -162,12 +165,76 @@ public:
     Result<None> execute(Mv& mv) const override;
 };
 
-// struct INST : public BaseInst {
-// public:
-//     INST();
-//     void print() const override;
-//     Result<None> execute(Mv& mv) const override;
-// };
+struct Func : public BaseInst {
+public:
+    Func();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Ret : public BaseInst {
+public:
+    Ret();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Call : public BaseInst {
+public:
+    Call();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Wait : public BaseInst {
+public:
+    Wait();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Size : public BaseInst {
+public:
+    Size();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+// Memory Stuff
+struct Read : public BaseInst {
+public:
+    Read();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Write : public BaseInst {
+public:
+    Write();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Arr : public BaseInst {
+public:
+    Arr();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Str : public BaseInst {
+public:
+    Str();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+struct Include : public BaseInst {
+public:
+    Include();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
 
 extern std::map<std::string, std::string> inst_map_str;
 void init_inst_map(void);

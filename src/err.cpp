@@ -25,6 +25,19 @@ Err::Err(std::string msg) {
     m_type = ErrType::Err;
 }
 
+Err::Err(std::string msg, i32 line_num) {
+    m_msg = msg;
+    m_type = ErrType::Err;
+    m_line_num = line_num;
+}
+
+Err::Err(std::string msg, i32 line_num, std::string file_path) {
+    m_msg = msg;
+    m_type = ErrType::Err;
+    m_line_num = line_num;
+    m_file_path = file_path;
+}
+
 Err::~Err() {
     m_msg = "";
     m_type = ErrType::None;
@@ -60,4 +73,6 @@ void Err::print() const {
     std::cerr << "    Type      ~~> " << type_to_str() << "\n";
     std::cerr << "    Message   ~~> " << m_msg << "\n";
     std::cerr << "    Exit Code ~~> " << static_cast<i32>(m_type) << "\n";
+    std::cerr << "    Line Num  ~~> " << m_line_num << "\n";
+    std::cerr << "    File      ~~> " << m_file_path << "\n";
 }

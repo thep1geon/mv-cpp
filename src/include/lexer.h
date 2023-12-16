@@ -18,26 +18,32 @@ enum class TokenType {
     Ident,
     Int_Lit,
     Str_Lit,
+    Dot_Op,
 };
 
 struct Token {
     TokenType type;
     std::string value;
+    i32 line_num;
+    std::string file;
 
-    Token(TokenType type, std::string value) {
+    Token(TokenType type, std::string value, i32 line_num, std::string file_path) {
         this->type = type;
         this->value = value;
+        this->line_num = line_num;
+        this->file = file_path;
     }
 
     Token() {
         type = TokenType::Empty;
         value = "";
+        line_num = 0;
     }
 
     ~Token() = default;
 
     bool is_empty() const {
-        return type == TokenType::Empty && value == "";
+        return type == TokenType::Empty && value == "" && line_num == 0;
     }
 
     std::string type_to_str() {
@@ -58,6 +64,7 @@ struct Token {
 
 class Lexer {
     std::ifstream m_file;
+    std::string m_file_path;
     usize m_cursor;  
     usize m_line_number;
 
@@ -68,7 +75,7 @@ class Lexer {
     Result<char> peek(usize offset = 0);
     char consume();
 
-    std::vector<Token> tokenize_line();
+    std::vector<Token> tokenize_line(i32 line_num);
 public:
     Lexer(const char* filepath);
     Lexer();

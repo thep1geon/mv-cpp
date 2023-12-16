@@ -1,0 +1,7 @@
+func Math:
+push 32
+push 32
+push 5
+add
+add
+ret

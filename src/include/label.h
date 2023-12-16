@@ -9,6 +9,7 @@ struct Label {
     usize m_jump_point;
     Label();
     Label(std::string name, usize jump_point);
+    void print();
 };
 }
 

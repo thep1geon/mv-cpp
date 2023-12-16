@@ -1,0 +1,3 @@
+func push_32:
+push 32
+ret

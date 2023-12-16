@@ -22,7 +22,7 @@ public:
 
     Result<None> push(const T& push_data) {
         if (m_size + 1 >= (i32)N) {
-            return Err(ErrType::StackOverflow);
+            return Err("Stack Overflow");
         }
 
         m_data[m_size++] = push_data;
@@ -44,6 +44,14 @@ public:
         }
 
         return m_data[m_size-1];
+    }
+
+    Result<T> at(usize index) {
+        if (m_size == 0) {
+            return Err("Empty stack at()");
+        }
+
+        return m_data[m_size - index - 1];
     }
 
     void print() const {
