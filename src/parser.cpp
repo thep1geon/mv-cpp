@@ -228,6 +228,11 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                     inst->m_file = sublist[0].file;
                     use_ident = true;
                 }
+                else if (tok.value == "input") {
+                    inst = new Inst::Input();
+                    inst->m_line_num = sublist[0].line_num;
+                    inst->m_file = sublist[0].file;
+                }
             } 
             else if (tok.type == TokenType::Int_Lit) {
                 if (inst->m_operand_1.has_value()) {

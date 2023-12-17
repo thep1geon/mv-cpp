@@ -1,10 +1,12 @@
 #ifndef __INST_H
 #define __INST_H
 
+#include "linkedlist.h"
 #include "result.h"
 #include "types.h"
 #include "label.h"
 #include "option.h"
+#include "arg.h"
 #include <map>
 #include <string>
 
@@ -13,11 +15,12 @@ class Mv;
 namespace Inst {
 
 struct BaseInst {
+    bool is_func = false;
     i32 m_line_num = 0;
     std::string m_file = "";
-    Option<i32> m_operand_1 = Option<i32>();
-    Option<i32> m_operand_2 = Option<i32>();
-    Option<std::string> m_literal = Option<std::string>();
+
+    LinkedList<Arg> args;
+
     virtual ~BaseInst() = default;
     virtual void print() const;
     virtual Result<None> execute(Mv& mv) const;
@@ -239,6 +242,15 @@ public:
 extern std::map<std::string, std::string> inst_map_str;
 void init_inst_map(void);
 
+struct Input : public BaseInst {
+public:
+    Input();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+
+extern std::map<std::string, std::string> inst_map_str;
+void init_inst_map(void);
 }
 
 

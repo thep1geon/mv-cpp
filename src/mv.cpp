@@ -5,8 +5,11 @@
 #include "include/stack.h"
 #include "include/parser.h"
 #include "include/types.h"
+#include <cstdlib>
 #include <cstring>
+#include <ctime>
 #include <map>
+#include <ostream>
 #include <vector>
 #include <algorithm>
 
@@ -93,6 +96,15 @@ Result<None> Mv::program_from_file(const char* filepath) {
 }
 
 Result<i32> Mv::include_program_from_file(const char* filepath) {
+    std::fstream f;
+    f.open(filepath);
+
+    if (!f.is_open()) {
+        f.close();
+        return Err("Failed to open file");
+    }
+
+
     Lexer l(filepath); 
 
     std::vector<std::vector<Token>> tokens = l.tokenize_file();
@@ -109,20 +121,24 @@ Result<i32> Mv::include_program_from_file(const char* filepath) {
 }
 
 i32 Mv::find_memory(usize len) {
-    for (size_t i = 0; i < 4096 - len; i++) {
-        size_t j;
-        for (j = 0; j < len; j++) {
-            if (heap[i + j] != 0) {
-                break; 
+    srand(time(NULL));
+
+    for (usize k = 0; k < 50; ++k) {
+        for (size_t i = rand()%(4096-len); i < 4096 - len; i++) {
+            size_t j;
+            for (j = 0; j < len; j++) {
+                if (heap[i + j] != 0) {
+                    break; 
+                }
+
+                if (heap[i + j] == 0 && heap[i+j-1] != 0) {
+                    break;
+                }
             }
 
-            if (heap[i + j] == 0 && heap[i+j-1] != 0) {
-                break;
+            if (j == len) {
+                return i;
             }
-        }
-
-        if (j == len) {
-            return i;
         }
     }
 

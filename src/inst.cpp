@@ -4,10 +4,12 @@
 #include "include/option.h"
 #include "include/result.h"
 #include "include/types.h"
+#include <cstdio>
 #include <iostream>
 #include <map>
 #include <string>
 #include <unistd.h>
+#include <vector>
 
 #define VAL_IF_SOME_NUM(opt) opt.has_value() ? opt.get_value().get_ok() : 0
 #define VAL_IF_SOME_STR(opt) opt.has_value() ? opt.get_value().get_ok() : "NULL"
@@ -53,6 +55,8 @@ void Inst::init_inst_map(void) {
     Inst::inst_map_str["arr"] = "arr";
 
     Inst::inst_map_str["include"] = "include";
+
+    Inst::inst_map_str["input"] = "input";
 }
 
 using namespace Inst;
@@ -596,7 +600,13 @@ Result<None> Dump::execute(Mv& mv) const {
     std::cout << "====Stack====\n";
 
     if (m_operand_1.has_value()) {
-        std::cout << mv.m_stack.at(m_operand_1.get_value().get_ok()).get_ok() << "\n";
+        Result r = mv.m_stack.at(m_operand_1.get_value().get_ok());
+
+        if (r.is_err()) {
+            return Err("Dump: index out of bounds", m_line_num, m_file);
+        }
+
+        std::cout << r.get_ok() << "\n";
     } else {
         mv.get_stack().print();
     }
@@ -613,7 +623,13 @@ void Print::print() const {
 }
 Result<None> Print::execute(Mv& mv) const {
     if (m_operand_1.has_value()) {
-        std::cout << (char)mv.m_stack.at(m_operand_1.get_value().get_ok()).get_ok();
+        Result r = mv.m_stack.at(m_operand_1.get_value().get_ok());
+
+        if (r.is_err()) {
+            return Err("Print: index out of bounds", m_line_num, m_file);
+        }
+
+        std::cout << (char)r.get_ok();
     } else {
 
         Stack s = mv.get_stack();
@@ -680,7 +696,7 @@ Result<None> LabelInst::execute(Mv& mv) const {
     return Void();
 }
 
-Func::Func() {}
+Func::Func() {is_func = true;}
 void Func::print() const {
     std::cout << "Func Inst\n";
     std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
@@ -925,11 +941,25 @@ Result<None> Include::execute(Mv& mv) const {
 
     Result r_include_file = mv.include_program_from_file(m_literal.get_value().get_ok().c_str());
 
+    if (r_include_file.is_err()) {
+        return Err("File: " + m_literal.get_value().get_ok() + " not found", 
+                   m_line_num,
+                   m_file);
+    }
+
     i32 offset = r_include_file.get_ok();
     mv.m_inst_ptr += offset;
 
     for (auto& [key, val] : sec_map) {
         val.m_jump_point += offset;
+    }
+
+    for (usize i = offset; i < mv.m_program.size(); ++i) {
+        Inst::BaseInst*& inst = mv.m_program[i];
+        if (inst->is_func) {
+            i32 ip = inst->m_operand_1.get_value().get_ok();
+            inst->m_operand_1.set_value(ip + offset);
+        } 
     }
 
     for (auto& [key, val] : mv.m_label_table) {
@@ -945,9 +975,46 @@ Result<None> Include::execute(Mv& mv) const {
     }
 
     if (mv.m_debug) {
+        usize i = 0;
         for (auto inst : mv.m_program) {
+            std::cout << i++ << " - ";
             inst->print();
         }
+    }
+
+    return Void();
+}
+
+Input::Input() {}
+void Input::print() const {
+    std::cout << "Input Inst\n";
+    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
+    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
+    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+}
+Result<None> Input::execute(Mv& mv) const {
+    if (m_literal.has_value()) {
+        printf("%s", m_literal.get_value().get_ok().c_str());
+    }
+
+    i32 num;
+
+    if (m_operand_1.has_value()) {
+        num = m_operand_1.get_value().get_ok();
+    }
+
+    scanf("%d", &num);
+
+    Inst::Push push = Inst::Push();
+
+    push.m_operand_1.set_value(num);
+    push.m_file = m_file;
+    push.m_line_num = m_line_num;
+
+    Result r_push = push.execute(mv);
+
+    if (r_push.is_err()) {
+        return Err("Input: Stack Overflow", m_line_num, m_file);
     }
 
     return Void();
