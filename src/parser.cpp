@@ -219,6 +219,20 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                     inst->line_num = sublist[0].line_num;
                     inst->file = sublist[0].file;
                 }
+                else if (tok.value == "set") {
+                    inst = new Inst::Set();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
+                else if (tok.value == "del") {
+                    inst = new Inst::Del();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
+                else {
+                    Err("Unknown Keyword: " + tok.value, 
+                        sublist[0].line_num, sublist[0].file).fatal();
+                }
             } 
             else if (tok.type == TokenType::Int_Lit) {
                 inst->args.push_back(Arg(std::atoi(tok.value.c_str())));

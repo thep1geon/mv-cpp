@@ -1,25 +1,8 @@
-func fun:
-push 32
-ret
+include "math.mv"
+include "std.mv"
 
-input "How many times do you want to loop? "
+str "String"
+pop p
 
-jmp_eq end 0
-
-push 0
-fun_loop:
-pop 0
-pop 1
-
-call fun
-
-mov 1
-mov 0
-inc 
-jmp_lt fun_loop ..
-pop
-
-end:
-pop
-
-dump
+call print_str p
+call fib 12

@@ -1,16 +1,7 @@
-func Math:
-push 32
-push 32
-push 5
-add
-add
-ret
-
 func fib:
+pop nums
 push 0
 push 1
-
-dump
 
 push 2
 loop:
@@ -18,8 +9,60 @@ pop 0
 dupe 1
 dupe 1
 add
-dump
 mov 0
-call Inc
-jmp_lt loop 12
+inc
+jmp_lt loop nums
+pop
+dump
+del nums
+ret
+
+func game:
+input "How many times do you want to loop? "
+
+jmp_eq end 0
+
+push 0
+fun_loop:
+pop 0
+pop 1
+
+push 42
+
+mov 1
+mov 0
+inc 
+jmp_lt fun_loop ..
+pop
+
+end:
+pop
+
+dump
+ret
+
+func Add:
+add
+ret
+
+func Sub:
+swap
+sub
+ret
+
+func Mult:
+mult
+ret
+
+func Div:
+swap
+div
+ret
+
+func Inc:
+inc
+ret
+
+func Dec:
+dec
 ret

@@ -1,5 +1,6 @@
 #include "include/err.h"
 #include "include/types.h"
+#include <cassert>
 #include <cstdlib>
 #include <iostream>
 #include <string>
@@ -63,16 +64,13 @@ std::string Err::type_to_str() const {
     switch (m_type) {
         case ErrType::None:          return "None";
         case ErrType::Err:           return "Err";
-        case ErrType::StackOverflow: return "StackOverflow";
-        default:                     return "Unknown Err";
+        default:                     assert(0 && "Unreachable");
     }
 }
 
 void Err::print() const {
     std::cerr << "Error!\n";
-    std::cerr << "    Type      ~~> " << type_to_str() << "\n";
     std::cerr << "    Message   ~~> " << m_msg << "\n";
-    std::cerr << "    Exit Code ~~> " << static_cast<i32>(m_type) << "\n";
     std::cerr << "    Line Num  ~~> " << m_line_num << "\n";
     std::cerr << "    File      ~~> " << m_file_path << "\n";
 }

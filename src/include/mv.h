@@ -14,6 +14,7 @@ struct Mv {
     Stack<i32, 1024> call_stack;
     std::vector<Inst::BaseInst*> program;
     std::map<std::string, Label::Label> label_table;
+    std::map<std::string, i32> variables;
     i32 registers[10];
     i32 heap[sizeof(i32) * 1024];
 

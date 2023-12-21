@@ -19,7 +19,7 @@ struct BaseInst {
 
     std::vector<Arg> args;
 
-    virtual ~BaseInst();
+    virtual ~BaseInst() = default;
     virtual void print() const;
     virtual Result<None> execute(Mv& mv) const;
 };
@@ -247,8 +247,18 @@ public:
     Result<None> execute(Mv& mv) const override;
 };
 
-extern std::map<std::string, std::string> inst_map_str;
-void init_inst_map(void);
+struct Set : public BaseInst {
+public:
+    Set();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+struct Del : public BaseInst {
+public:
+    Del();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
 }
 
 #endif  //__INST_H

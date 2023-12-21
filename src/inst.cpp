@@ -14,7 +14,7 @@
 
 #define ERR(msg) Err(msg, line_num, file)
 
-Result<None> value_or_dot(Arg arg, i32* ptr, const Inst::BaseInst* i, const char* inst_type, Mv& mv) {
+Result<None> value_or_ident(Arg arg, i32* ptr, const Inst::BaseInst* i, const char* inst_type, Mv& mv) {
     if (arg.type == Arg::NUM) {
         *ptr = arg.get_num();
     } else if (arg.type == Arg::IDENT) {
@@ -32,12 +32,14 @@ Result<None> value_or_dot(Arg arg, i32* ptr, const Inst::BaseInst* i, const char
                            i->line_num, i->file);
             }
             *ptr = mv.stack.at(1).get_ok();
+        } else if (mv.variables.count(ident)) {
+            *ptr = mv.variables[ident]; 
         } else {
-            return Err(std::string(inst_type)+": Invalid Ident", 
+            return Err(std::string(inst_type)+": Invalid Ident: " + ident, 
                        i->line_num, i->file);
         }
     } else {
-        return Err(std::string(inst_type)+": Invalid Second Arguemnt Type. Expected NUM or IDENT, found STR", 
+        return Err(std::string(inst_type)+": Invalid Second Argument Type. Expected NUM or IDENT, found STR", 
                    i->line_num, i->file);
     }
 
@@ -86,6 +88,8 @@ void Inst::init_inst_map(void) {
     Inst::inst_map_str["include"] = "include";
 
     Inst::inst_map_str["input"] = "input";
+    Inst::inst_map_str["set"] = "set";
+    Inst::inst_map_str["del"] = "del";
 }
 
 using namespace Inst;
@@ -99,7 +103,6 @@ void BaseInst::print() const {
     std::cout << "Base Inst\n";
     for (Arg a : args) { std::cout << a << "\n";}
 }
-BaseInst::~BaseInst() {}
 // Inst::Add
 Add::Add() {}
 void Add::print() const {
@@ -220,7 +223,7 @@ void Jump::print() const {
 }
 Result<None> Jump::execute(Mv& mv) const {
     if (args.size() < 1) {
-        return ERR("Jump: Missing Arguemnts");
+        return ERR("Jump: Missing Arguments");
     }
 
     if (args[0].type > Arg::NUM) {
@@ -247,7 +250,7 @@ void JumpGT::print() const {
 }
 Result<None> JumpGT::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("JumpGT: Missing Arguemnts");
+        return ERR("JumpGT: Missing Arguments");
     }
 
     if (mv.get_stack().peek().is_err()) {
@@ -262,12 +265,12 @@ Result<None> JumpGT::execute(Mv& mv) const {
     if (arg_1.type > Arg::NUM) {
         literal = arg_1.get_str(); 
     } else {
-        return ERR("JumpGT: Invalid First Arguemnt");
+        return ERR("JumpGT: Invalid First Argument");
     }
 
     i32 condition;
 
-    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpGT", mv);
+    Result r_cond = value_or_ident(arg_2, &condition, this, "JumpGT", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
 
     if (mv.stack[0] > condition) {
@@ -290,7 +293,7 @@ void JumpGTE::print() const {
 }
 Result<None> JumpGTE::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("JumpGTE: Missing Arguemnts");
+        return ERR("JumpGTE: Missing Arguments");
     }
 
     if (mv.get_stack().peek().is_err()) {
@@ -305,12 +308,12 @@ Result<None> JumpGTE::execute(Mv& mv) const {
     if (arg_1.type > Arg::NUM) {
         literal = arg_1.get_str(); 
     } else {
-        return ERR("JumpGTE: Invalid First Arguemnt");
+        return ERR("JumpGTE: Invalid First Argument");
     }
 
     i32 condition;
 
-    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpGTE", mv);
+    Result r_cond = value_or_ident(arg_2, &condition, this, "JumpGTE", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
 
     if (mv.stack[0] >= condition) {
@@ -333,7 +336,7 @@ void JumpLT::print() const {
 }
 Result<None> JumpLT::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("JumpLT: Missing Arguemnts");
+        return ERR("JumpLT: Missing Arguments");
     }
 
     if (mv.get_stack().peek().is_err()) {
@@ -348,12 +351,12 @@ Result<None> JumpLT::execute(Mv& mv) const {
     if (arg_1.type > Arg::NUM) {
         literal = arg_1.get_str(); 
     } else {
-        return ERR("JumpLT: Invalid First Arguemnt");
+        return ERR("JumpLT: Invalid First Argument");
     }
 
     i32 condition;
 
-    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpLT", mv);
+    Result r_cond = value_or_ident(arg_2, &condition, this, "JumpLT", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
 
     if (mv.stack[0] < condition) {
@@ -376,7 +379,7 @@ void JumpLTE::print() const {
 }
 Result<None> JumpLTE::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("JumpLTE: Missing Arguemnts");
+        return ERR("JumpLTE: Missing Arguments");
     }
 
     if (mv.get_stack().peek().is_err()) {
@@ -391,12 +394,12 @@ Result<None> JumpLTE::execute(Mv& mv) const {
     if (arg_1.type > Arg::NUM) {
         literal = arg_1.get_str(); 
     } else {
-        return ERR("JumpLTE: Invalid First Arguemnt");
+        return ERR("JumpLTE: Invalid First Argument");
     }
 
     i32 condition;
 
-    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpLTE", mv);
+    Result r_cond = value_or_ident(arg_2, &condition, this, "JumpLTE", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
 
     if (mv.stack[0] <= condition) {
@@ -419,7 +422,7 @@ void JumpEQ::print() const {
 }
 Result<None> JumpEQ::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("JumpEQ: Missing Arguemnts");
+        return ERR("JumpEQ: Missing Arguments");
     }
 
     if (mv.get_stack().peek().is_err()) {
@@ -434,12 +437,12 @@ Result<None> JumpEQ::execute(Mv& mv) const {
     if (arg_1.type > Arg::NUM) {
         literal = arg_1.get_str(); 
     } else {
-        return ERR("JumpEQ: Invalid First Arguemnt");
+        return ERR("JumpEQ: Invalid First Argument");
     }
 
     i32 condition;
 
-    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpEQ", mv);
+    Result r_cond = value_or_ident(arg_2, &condition, this, "JumpEQ", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
 
     if (mv.stack[0] == condition) {
@@ -462,7 +465,7 @@ void JumpNEQ::print() const {
 }
 Result<None> JumpNEQ::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("JumpNEQ: Missing Arguemnts");
+        return ERR("JumpNEQ: Missing Arguments");
     }
 
     if (mv.get_stack().peek().is_err()) {
@@ -477,12 +480,12 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
     if (arg_1.type > Arg::NUM) {
         literal = arg_1.get_str(); 
     } else {
-        return ERR("JumpNEQ: Invalid First Arguemnt");
+        return ERR("JumpNEQ: Invalid First Argument");
     }
 
     i32 condition;
 
-    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpNEQ", mv);
+    Result r_cond = value_or_ident(arg_2, &condition, this, "JumpNEQ", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
 
     if (mv.stack[0] != condition) {
@@ -521,12 +524,16 @@ Result<None> Push::execute(Mv& mv) const {
 
         Arg a = args[i];
 
-        if (a.type == Arg::NUM) {
-            mv.stack.push(a.get_num());
-        } else if (a.type == Arg::STR) {
+        if (a.type == Arg::STR) {
             for (char c : a.get_str()) {
                 mv.stack.push(c); 
             }
+        } else {
+            i32 val;
+            Result r_val = value_or_ident(a, &val, this, "Push", mv);
+            if (r_val.is_err()) { return r_val.get_err();}
+
+            mv.stack.push(val);
         }
     }
 
@@ -546,8 +553,25 @@ Result<None> Pop::execute(Mv& mv) const {
         return ERR("Pop : Stack Underflow");
     }
 
-    if (args.size() == 1 && args[0].type == Arg::NUM) {
-        mv.registers[args[0].get_num()] = r.get_ok(); 
+    if (args.size() == 1) {
+        switch (args[0].type) {
+            case Arg::NUM:
+                mv.registers[args[0].get_num()] = r.get_ok(); 
+                break;
+            case Arg::IDENT: {
+                Inst::Set s = Inst::Set();
+                s.args.push_back(Arg(args[0].get_str(), Arg::IDENT));
+                s.args.push_back(r.get_ok());
+                s.file = file;
+                s.line_num = line_num;
+
+                Result r_set = s.execute(mv);
+                if (r_set.is_err()) {return r_set.get_err();}
+                break;
+            }
+            default:
+                return ERR("Pop: Invalid Argument Type");
+        }
     }
 
     return Void();
@@ -631,14 +655,18 @@ void Print::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Print::execute(Mv& mv) const {
-    if (args.size() == 1 && args[0].type == Arg::NUM) {
-        Result r = mv.stack.at(args[0].get_num()).get_ok();
+    if (args.size() == 1) {
+        if (args[0].type == Arg::NUM) {
+            Result r = mv.stack.at(args[0].get_num()).get_ok();
 
-        if (r.is_err()) {
-            return ERR("Print: index out of bounds");
+            if (r.is_err()) {
+                return ERR("Print: index out of bounds");
+            }
+
+            std::cout << (char)r.get_ok();
+        } else if (args[0].type == Arg::IDENT) {
+            std::cout << mv.variables[args[0].get_str()] << "\n";
         }
-
-        std::cout << (char)r.get_ok();
     } else {
 
         Stack s = mv.get_stack();
@@ -672,14 +700,14 @@ Result<None> Move::execute(Mv& mv) const {
         return ERR("Move: Missing Argument(s)");
     }
 
-    Result r_dst = value_or_dot(args[0], &dst, this, "Move", mv);
+    Result r_dst = value_or_ident(args[0], &dst, this, "Move", mv);
     if (r_dst.is_err()) {
         return r_dst.get_err();
     }
 
 
     if (args.size() > 1) {
-        Result r_src_val = value_or_dot(args[1], &src_val, this, "Move", mv);
+        Result r_src_val = value_or_ident(args[1], &src_val, this, "Move", mv);
         if (r_src_val.is_err()) {
             return r_src_val.get_err();
         }
@@ -767,18 +795,18 @@ void Call::print() const {
 }
 Result<None> Call::execute(Mv& mv) const {
     if (args.size() < 1) {
-        return ERR("Call: Not Enough Arguemnts");
+        return ERR("Call: Not Enough Arguments");
     }
 
     if (args[0].type == Arg::NUM) {
-        return ERR("Call: First Arguemnt: Invalid Type"); 
+        return ERR("Call: First Argument: Invalid Type"); 
     }
 
     mv.call_stack.push(mv.inst_ptr);
 
-    for (i32 i = 1; i < args.size(); ++i) {
+    for (usize i = 1; i < args.size(); ++i) {
         i32 num;
-        Result r_num = value_or_dot(args[i], &num, this, "Call", mv);
+        Result r_num = value_or_ident(args[i], &num, this, "Call", mv);
         if (r_num.is_err()) {
             return r_num.get_err();
         }
@@ -849,7 +877,7 @@ Result<None> Read::execute(Mv& mv) const {
         return ERR("Read: Stack Overflow");
     }
 
-    Result r_adr = value_or_dot(args[0], &address, this, "Read", mv);
+    Result r_adr = value_or_ident(args[0], &address, this, "Read", mv);
     if (r_adr.is_err()) {return r_adr.get_err();}
 
     Inst::Push p = Inst::Push(mv.heap[address]);
@@ -871,17 +899,17 @@ void Write::print() const {
 }
 Result<None> Write::execute(Mv& mv) const {
     if (args.size() < 2) {
-        return ERR("Write: Missing Arguemnts");
+        return ERR("Write: Missing Arguments");
     }
     
     i32 address = 0;
     i32 val     = 0;
 
 
-    Result r_adr = value_or_dot(args[0], &address, this, "Write", mv);
+    Result r_adr = value_or_ident(args[0], &address, this, "Write", mv);
     if (r_adr.is_err()) {return r_adr.get_err();}
 
-    Result r_val = value_or_dot(args[1], &val, this, "Write", mv);
+    Result r_val = value_or_ident(args[1], &val, this, "Write", mv);
     if (r_val.is_err()) {return r_val.get_err();}
 
     mv.heap[address] = val;
@@ -897,13 +925,13 @@ Result<None> Arr::execute(Mv& mv) const {
     i32 len = 0;
     i32 def = -1;
 
-    Result r_len = value_or_dot(args[0], &len, this, "Arr", mv);
+    Result r_len = value_or_ident(args[0], &len, this, "Arr", mv);
     if (r_len.is_err()) {
         return r_len.get_err();
     }
 
     if (args.size() > 1) {
-        Result r_def = value_or_dot(args[1], &def, this, "Arr", mv);
+        Result r_def = value_or_ident(args[1], &def, this, "Arr", mv);
         if (r_def.is_err()) {
             return r_def.get_err();
         }
@@ -963,12 +991,7 @@ Result<None> Str::execute(Mv& mv) const {
 
     mv.heap[++i] = '\0';
 
-    Result r_len =  Inst::Push(len).execute(mv);
     Result r_ptr =  Inst::Push(ptr).execute(mv);
-
-    if (r_len.is_err()) {
-        return ERR("Str len: Stack Overflow");
-    }
 
     if (r_ptr.is_err()) {
         return ERR("Str ptr: Stack Overflow");
@@ -1062,4 +1085,52 @@ Result<None> Input::execute(Mv& mv) const {
     push.line_num = line_num;
 
     return push.execute(mv);
+}
+
+Set::Set() {}
+void Set::print() const {
+    std::cout << "Set Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> Set::execute(Mv& mv) const {
+    if (args.size() != 2) {
+        return ERR("Set: Incorrect Number of Argumnts");
+    }
+    
+    if (args[0].type != Arg::IDENT) {
+        return ERR("Set: First Arg Invalid Type");
+    }
+
+    i32 val;
+    Result r_val = value_or_ident(args[1], &val, this, "Set", mv);
+    if (r_val.is_err()) {
+        return r_val.get_err();
+    }
+
+    mv.variables[args[0].get_str()] = val; 
+
+    return Void();
+}
+
+Del::Del() {}
+void Del::print() const {
+    std::cout << "Del Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> Del::execute(Mv& mv) const {
+    if (args.size() < 1) {
+        return ERR("Del: Missing Ident");
+    }
+
+    if (args[0].type != Arg::IDENT) {
+        return ERR("Del: Invalid Arg Type");
+    }
+
+    if (mv.variables.count(args[0].get_str())) {
+        mv.variables.erase(args[0].get_str());
+    } else {
+        return ERR("Del: Ident: " + args[0].get_str() + " not bound");
+    }
+
+    return Void();
 }

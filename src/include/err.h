@@ -7,7 +7,6 @@
 enum class ErrType {
     None = 0,
     Err,
-    StackOverflow,
 };
 
 class Err {

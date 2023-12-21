@@ -1,8 +1,9 @@
+include "math.mv"
+
 # Prints a string from memory
 # Param: pointer to the first char on top of the stack
 # WARNING: This function consumes the pointer
 func print_str:
-call add_newline
 print_loop:
 read .
 print 0
@@ -12,34 +13,33 @@ inc
 jmp print_loop
 
 print_end:
+# Last character is a new line
+push 10
+print 0
+pop
+
 pop
 pop
+
 ret
 
-func add_newline:
-dupe
+func strlen:
+set len 0
 
-count_loop:
+strlen_loop:
 read .
-jmp_eq newline_end 0
+jmp_eq strlen_end 0
+call Add len 1
+pop len
 pop
 inc
-jmp count_loop
+jmp strlen_loop
 
-newline_end:
+strlen_end:
 pop
-write . 10
 pop
-ret
-
-func Inc:
-push 1
-add
-ret
-
-func Dec:
-push -1
-add
+push len
+del len
 ret
 
 func clear:
