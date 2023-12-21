@@ -1,0 +1,37 @@
+[X] Move arg system over to std::vector instead of my very flawed 
+    linked list
+
+[X] pass values with function call ?(and ret)?
+    ~ call Add 23 34
+    ~ func Add:
+    ~   ~ STACK: 23 34 (top)
+    ~   ~ add
+    ~   ~ ret
+
+    12/21/23 00:59:
+        I can't think of any reason to add this feature
+        but maybe there was a reason I thought of this
+        ~ func a:
+        ~   ~ call Add . 32
+        ~   ~ ret .
+    12/21/23 118:14:
+        I found no reason to add this feature
+
+[X] variables - more like "binding"?
+    ~ set x 42
+    ~ #set y x+32 # Can't do that 
+    ~ # You have to do this instead
+    ~ call Add x 32 
+    ~ pop y
+
+[ ] "Pipe" operator to catch the top item of the stack
+    ~ set x 42
+    ~ # I want to increment x by 10
+    ~ # But I'd have to do this:
+    ~ # call Add x 10
+    ~ # pop x
+    ~ # I can simplify and do this instead
+    ~ call Add x 10 | x
+    ~ # The pipe will take the top of the stack after
+    ~ # the Add function and set x to that value
+    ~ str "Hello World" | str_ptr # Would also work too

@@ -12,6 +12,7 @@ OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 DEP_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.d,$(SRC_FILES))
 
 CFLAGS := -Wall -Wextra -ggdb -fsanitize=address -pedantic
+CFLAGS := -Wall -Wextra -ggdb -pedantic
 LIBS :=
 
 all: $(TARGET)
