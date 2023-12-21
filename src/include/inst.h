@@ -10,14 +10,12 @@
 #include <map>
 #include <string>
 
-class Mv;
-
-namespace Inst {
+class Mv; namespace Inst {
 
 struct BaseInst {
     bool is_func = false;
-    i32 m_line_num = 0;
-    std::string m_file = "";
+    i32 line_num = 0;
+    std::string file = "";
 
     LinkedList<Arg> args;
 
@@ -252,6 +250,5 @@ public:
 extern std::map<std::string, std::string> inst_map_str;
 void init_inst_map(void);
 }
-
 
 #endif  //__INST_H

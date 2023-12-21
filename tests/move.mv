@@ -1,0 +1,7 @@
+mov 0 32
+
+dump
+
+mov 0
+
+dump

@@ -1,13 +1,8 @@
-include "main.mv"
+push 420 69
 
-call push_32
-jmp init_main
+write . ..
+pop 
 
-start:
-call Math
-dump
-
-str "Hello World"
-call print_str
+read .
 
 dump

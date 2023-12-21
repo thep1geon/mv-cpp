@@ -8,14 +8,14 @@ A simple virtual machine and programming language written in C++. Inspired by Ts
 ## Features
  - [X] Comments
  - [X] labels
- - [ ] Dot Operator
- - [ ] Memory
- - [ ] Strings
- - [ ] Built-in functions (e.g., "print_str")
+ - [X] Dot Operator
+ - [X] Memory
+ - [X] Strings
+ - [X] Built-in functions (e.g., "print_str")
  - [X] Utility instructions (e.g., "size", "swap")
- - [ ] Functions
- - [ ] Including from other files
- - [ ] Call Stack
+ - [X] Functions
+ - [X] Including from other files
+ - [X] Call Stack
 
 ## Project Goals
 
@@ -34,7 +34,7 @@ For Debian like distros: ```sudo apt-get install make gcc```
 2. Change the INLCUDE_PATH in main.c to the full path of the include folder of the repo
 3. Compile with the makefile ```make```
 4. [Write](#writing-your-own-programs) your own program or use one of the examples
-5. Run: ```./mv <program> [-debug]```
+5. Run: ```./bin/mv <program> [-debug=true]```
 
 ## Writing Your Own Programs
 
@@ -46,15 +46,9 @@ For Debian like distros: ```sudo apt-get install make gcc```
 ## Examples
 
 ```mv
-include "std.mv" ;; Inlcude the standard library which only has one function
+include "std.mv" ;; Inlcude the standard library
 
 str "Hello World!"
-dupe 0 ;; Duplicate the pointer
-pop 0 ;; Pop it into register 0
-add ;; add the pointer to the length of the string
-mem_write . 10 ;; Write at that address, 10. A newline character 
-pop ;; pop the pointer
-mov 0 ;; move the value from register 0 onto the stack
 call print_str ;; Expects the pointer on the top of the stack
 ```
 

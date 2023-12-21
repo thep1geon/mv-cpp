@@ -1,0 +1,12 @@
+include "main.mv"
+
+call push_32
+jmp init_main
+
+start:
+call Math
+
+str "Hello World"
+call print_str
+
+dump

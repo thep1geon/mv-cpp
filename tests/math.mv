@@ -1,0 +1,25 @@
+func Math:
+push 32
+push 32
+push 5
+add
+add
+ret
+
+func fib:
+push 0
+push 1
+
+dump
+
+push 2
+loop:
+pop 0
+dupe 1
+dupe 1
+add
+dump
+mov 0
+call Inc
+jmp_lt loop 12
+ret

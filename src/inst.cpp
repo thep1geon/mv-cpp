@@ -1,3 +1,4 @@
+#include "include/arg.h"
 #include "include/label.h"
 #include "include/mv.h"
 #include "include/inst.h"
@@ -11,9 +12,37 @@
 #include <unistd.h>
 #include <vector>
 
-#define VAL_IF_SOME_NUM(opt) opt.has_value() ? opt.get_value().get_ok() : 0
-#define VAL_IF_SOME_STR(opt) opt.has_value() ? opt.get_value().get_ok() : "NULL"
+#define ERR(msg) Err(msg, line_num, file)
 
+Result<None> value_or_dot(Arg arg, i32* ptr, const Inst::BaseInst* i, const char* inst_type, Mv& mv) {
+    if (arg.type == Arg::NUM) {
+        *ptr = arg.get_num();
+    } else if (arg.type == Arg::IDENT) {
+        std::string ident = arg.get_str();
+
+        if (ident == ".") {
+            if (mv.stack.get_len() < 1) {
+                return Err(std::string(inst_type)+": Stack Missing Elements. Cannot Perform Dot",
+                           i->line_num, i->file);
+            }
+            *ptr = mv.stack.at(0).get_ok();
+        } else if (ident == "..") {
+            if (mv.stack.get_len() < 2) {
+                return Err(std::string(inst_type)+": Stack Missing Elements. Cannot Perform Double-Dot",
+                           i->line_num, i->file);
+            }
+            *ptr = mv.stack.at(1).get_ok();
+        } else {
+            return Err(std::string(inst_type)+": Invalid Ident", 
+                       i->line_num, i->file);
+        }
+    } else {
+        return Err(std::string(inst_type)+": Invalid Second Arguemnt Type. Expected NUM or IDENT, found STR", 
+                   i->line_num, i->file);
+    }
+
+    return Void();
+}
 
 std::map<std::string, std::string> Inst::inst_map_str;
 
@@ -68,24 +97,20 @@ Result<None> BaseInst::execute(Mv& mv) const {
 }
 void BaseInst::print() const { 
     std::cout << "Base Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 // Inst::Add
 Add::Add() {}
 void Add::print() const {
     std::cout << "Add Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Add::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
     Result b = mv.get_stack().pop();
 
     if (a.is_err() || b.is_err()) {
-        return Err("Failed to perform Add inst", m_line_num, m_file);
+        return ERR("Add: not enough elements on the stack");
     }
 
     return mv.get_stack().push(a.get_ok() + b.get_ok());
@@ -94,16 +119,14 @@ Result<None> Add::execute(Mv& mv) const {
 Sub::Sub() {}
 void Sub::print() const {
     std::cout << "Sub Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Sub::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
     Result b = mv.get_stack().pop();
 
     if (a.is_err() || b.is_err()) {
-        return Err("Failed to perform Sub inst", m_line_num, m_file);
+        return ERR("Sub: not enough elements on the stack");
     }
 
     return mv.get_stack().push(a.get_ok() - b.get_ok());
@@ -113,16 +136,14 @@ Result<None> Sub::execute(Mv& mv) const {
 Multiply::Multiply() {}
 void Multiply::print() const {
     std::cout << "Multiply Inst\n"; 
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Multiply::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
     Result b = mv.get_stack().pop();
 
     if (a.is_err() || b.is_err()) {
-        return Err("Failed to perform Multiply inst", m_line_num, m_file);
+        return ERR("Multiply: not enough elements on the stack");
     }
 
     return mv.get_stack().push(a.get_ok() * b.get_ok());
@@ -131,20 +152,18 @@ Result<None> Multiply::execute(Mv& mv) const {
 Divide::Divide() {}
 void Divide::print() const {
     std::cout << "Divide Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Divide::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
     Result b = mv.get_stack().pop();
 
     if (a.is_err() || b.is_err()) {
-        return Err("Failed to perform Divide inst", m_line_num, m_file);
+        return ERR("Divide: not enough elements on the stack");
     }
 
     if (b.get_ok() == 0) {
-        return Err("Divide by zero error", m_line_num, m_file);
+        return ERR("Divide by zero error");
     }
 
     return mv.get_stack().push(a.get_ok() / b.get_ok());
@@ -153,21 +172,19 @@ Result<None> Divide::execute(Mv& mv) const {
 Inc::Inc() {}
 void Inc::print() const {
     std::cout << "Inc Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Inc::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
 
     if (a.is_err()) {
-        return Err("Inc Inst: Empty Stack", m_line_num, m_file);
+        return ERR("Inc: Empty Stack");
     }
 
     Result r_push = mv.get_stack().push(a.get_ok()+1);
 
     if (r_push.is_err()) {
-        return Err("Inc Inst: Stack Overflow", m_line_num, m_file);
+        return ERR("Inc: Stack Overflow");
     }
 
     return Void();
@@ -176,21 +193,19 @@ Result<None> Inc::execute(Mv& mv) const {
 Dec::Dec() {}
 void Dec::print() const {
     std::cout << "Dec Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Dec::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
 
     if (a.is_err()) {
-        return Err("Inc Inst: Empty Stack", m_line_num, m_file);
+        return ERR("Dec: Empty Stack");
     }
 
     Result r_push = mv.get_stack().push(a.get_ok()-1);
 
     if (r_push.is_err()) {
-        return Err("Inc Inst: Stack Overflow", m_line_num, m_file);
+        return ERR("Dec: Stack Overflow");
     }
 
     return Void();
@@ -200,32 +215,26 @@ Result<None> Dec::execute(Mv& mv) const {
 Jump::Jump() {}
 void Jump::print() const {
     std::cout << "Jump Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Jump::execute(Mv& mv) const {
-    usize jp;
+    if (args.len() < 1) {
+        return ERR("Jump: Missing Arguemnts");
+    }
 
-    if (m_literal.has_value()) {
-        Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    if (args[0].type > Arg::NUM) {
+        std::string literal = args[0].get_str();
+        Label::Label label = mv.label_table[literal];
 
         if (label.m_name == "") {
-            return Err("Jump: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
+            return ERR("Jump: Label/Func: "+ literal +" not found");
         }
 
-        mv.m_inst_ptr = label.m_jump_point;
+        mv.inst_ptr = label.m_jump_point;
 
-        return Void();
-    }
-
-    if (!m_operand_1.has_value()) {
-        jp = mv.m_inst_ptr;
     } else {
-        jp = m_operand_1.get_value().get_ok();
+        mv.inst_ptr = args[0].get_num();
     }
-
-    mv.m_inst_ptr = jp;
 
     return Void();
 }
@@ -233,39 +242,41 @@ Result<None> Jump::execute(Mv& mv) const {
 JumpGT::JumpGT() {}
 void JumpGT::print() const {
     std::cout << "JumpGT Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> JumpGT::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("JumpGT Condition missing", m_line_num, m_file);
+    if (args.len() < 2) {
+        return ERR("JumpGT: Missing Arguemnts");
     }
 
     if (mv.get_stack().peek().is_err()) {
-        return Err("JumpGT Empty stack", m_line_num, m_file);
+        return ERR("JumpGT: Empty stack");
     }
 
-    if (mv.get_stack().peek().get_ok() > m_operand_1.get_value().get_ok()) {
-        usize jp = mv.m_inst_ptr;
+    Arg arg_1 = args[0];
+    Arg arg_2 = args[1];
 
-        if (m_literal.has_value()) {
-            Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    std::string literal;
 
-            if (label.m_name == "") {
-                return Err("JumpGT: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
-            }
+    if (arg_1.type > Arg::NUM) {
+        literal = arg_1.get_str(); 
+    } else {
+        return ERR("JumpGT: Invalid First Arguemnt");
+    }
 
-            mv.m_inst_ptr = label.m_jump_point;
+    i32 condition;
 
-            return Void();
+    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpGT", mv);
+    if (r_cond.is_err()) {return r_cond.get_err();}
+
+    if (mv.stack[0] > condition) {
+        Label::Label label = mv.label_table[literal];
+
+        if (label.m_name == "") {
+            return ERR("JumpGT: Label/Func: " + literal +" not found");
         }
 
-        if (m_operand_1.has_value()) {
-            jp = m_operand_1.get_value().get_ok();
-        }
-
-        mv.m_inst_ptr = jp;
+        mv.inst_ptr = label.m_jump_point;
     }
 
     return Void();
@@ -274,39 +285,41 @@ Result<None> JumpGT::execute(Mv& mv) const {
 JumpGTE::JumpGTE() {}
 void JumpGTE::print() const {
     std::cout << "JumpGTE Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> JumpGTE::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("JumpGTE Condition missing", m_line_num, m_file);
+    if (args.len() < 2) {
+        return ERR("JumpGTE: Missing Arguemnts");
     }
 
     if (mv.get_stack().peek().is_err()) {
-        return Err("JumpGTE Empty stack", m_line_num, m_file);
+        return ERR("JumpGTE: Empty stack");
     }
 
-    if (mv.get_stack().peek().get_ok() >= m_operand_1.get_value().get_ok()) {
-        usize jp = mv.m_inst_ptr;
+    Arg arg_1 = args[0];
+    Arg arg_2 = args[1];
 
-        if (m_literal.has_value()) {
-            Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    std::string literal;
 
-            if (label.m_name == "") {
-                return Err("JumpGTE: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
-            }
+    if (arg_1.type > Arg::NUM) {
+        literal = arg_1.get_str(); 
+    } else {
+        return ERR("JumpGTE: Invalid First Arguemnt");
+    }
 
-            mv.m_inst_ptr = label.m_jump_point;
+    i32 condition;
 
-            return Void();
+    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpGTE", mv);
+    if (r_cond.is_err()) {return r_cond.get_err();}
+
+    if (mv.stack[0] >= condition) {
+        Label::Label label = mv.label_table[literal];
+
+        if (label.m_name == "") {
+            return ERR("JumpGTE: Label/Func: " + literal +" not found");
         }
 
-        if (m_operand_1.has_value()) {
-            jp = m_operand_1.get_value().get_ok();
-        }
-
-        mv.m_inst_ptr = jp;
+        mv.inst_ptr = label.m_jump_point;
     }
 
     return Void();
@@ -315,39 +328,41 @@ Result<None> JumpGTE::execute(Mv& mv) const {
 JumpLT::JumpLT() {}
 void JumpLT::print() const {
     std::cout << "JumpLT Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> JumpLT::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("JumpLT Condition missing", m_line_num, m_file);
+    if (args.len() < 2) {
+        return ERR("JumpLT: Missing Arguemnts");
     }
 
     if (mv.get_stack().peek().is_err()) {
-        return Err("JumpLT Empty stack", m_line_num, m_file);
+        return ERR("JumpLT: Empty stack");
     }
 
-    if (mv.get_stack().peek().get_ok() < m_operand_1.get_value().get_ok()) {
-        usize jp = mv.m_inst_ptr;
+    Arg arg_1 = args[0];
+    Arg arg_2 = args[1];
 
-        if (m_literal.has_value()) {
-            Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    std::string literal;
 
-            if (label.m_name == "") {
-                return Err("JumpLT: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
-            }
+    if (arg_1.type > Arg::NUM) {
+        literal = arg_1.get_str(); 
+    } else {
+        return ERR("JumpLT: Invalid First Arguemnt");
+    }
 
-            mv.m_inst_ptr = label.m_jump_point;
+    i32 condition;
 
-            return Void();
+    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpLT", mv);
+    if (r_cond.is_err()) {return r_cond.get_err();}
+
+    if (mv.stack[0] < condition) {
+        Label::Label label = mv.label_table[literal];
+
+        if (label.m_name == "") {
+            return ERR("JumpLT: Label/Func: " + literal +" not found");
         }
 
-        if (m_operand_1.has_value()) {
-            jp = m_operand_1.get_value().get_ok();
-        }
-
-        mv.m_inst_ptr = jp;
+        mv.inst_ptr = label.m_jump_point;
     }
 
     return Void();
@@ -356,39 +371,41 @@ Result<None> JumpLT::execute(Mv& mv) const {
 JumpLTE::JumpLTE() {}
 void JumpLTE::print() const {
     std::cout << "JumpLTE Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> JumpLTE::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("JumpLTE Condition missing", m_line_num, m_file);
+    if (args.len() < 2) {
+        return ERR("JumpLTE: Missing Arguemnts");
     }
 
     if (mv.get_stack().peek().is_err()) {
-        return Err("JumpLTE Empty stack", m_line_num, m_file);
+        return ERR("JumpLTE: Empty stack");
     }
 
-    if (mv.get_stack().peek().get_ok() <= m_operand_1.get_value().get_ok()) {
-        usize jp = mv.m_inst_ptr;
+    Arg arg_1 = args[0];
+    Arg arg_2 = args[1];
 
-        if (m_literal.has_value()) {
-            Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    std::string literal;
 
-            if (label.m_name == "") {
-                return Err("JumpLTE: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
-            }
+    if (arg_1.type > Arg::NUM) {
+        literal = arg_1.get_str(); 
+    } else {
+        return ERR("JumpLTE: Invalid First Arguemnt");
+    }
 
-            mv.m_inst_ptr = label.m_jump_point;
+    i32 condition;
 
-            return Void();
+    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpLTE", mv);
+    if (r_cond.is_err()) {return r_cond.get_err();}
+
+    if (mv.stack[0] <= condition) {
+        Label::Label label = mv.label_table[literal];
+
+        if (label.m_name == "") {
+            return ERR("JumpLTE: Label/Func: " + literal +" not found");
         }
 
-        if (m_operand_1.has_value()) {
-            jp = m_operand_1.get_value().get_ok();
-        }
-
-        mv.m_inst_ptr = jp;
+        mv.inst_ptr = label.m_jump_point;
     }
 
     return Void();
@@ -397,39 +414,41 @@ Result<None> JumpLTE::execute(Mv& mv) const {
 JumpEQ::JumpEQ() {}
 void JumpEQ::print() const {
     std::cout << "JumpEQ Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> JumpEQ::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("JumpEQ Condition missing", m_line_num, m_file);
+    if (args.len() < 2) {
+        return ERR("JumpEQ: Missing Arguemnts");
     }
 
     if (mv.get_stack().peek().is_err()) {
-        return Err("JumpEQ Empty stack", m_line_num, m_file);
+        return ERR("JumpEQ: Empty stack");
     }
 
-    if (mv.get_stack().peek().get_ok() == m_operand_1.get_value().get_ok()) {
-        usize jp = mv.m_inst_ptr;
+    Arg arg_1 = args[0];
+    Arg arg_2 = args[1];
 
-        if (m_literal.has_value()) {
-            Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    std::string literal;
 
-            if (label.m_name == "") {
-                return Err("JumpEQ: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
-            }
+    if (arg_1.type > Arg::NUM) {
+        literal = arg_1.get_str(); 
+    } else {
+        return ERR("JumpEQ: Invalid First Arguemnt");
+    }
 
-            mv.m_inst_ptr = label.m_jump_point;
+    i32 condition;
 
-            return Void();
+    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpEQ", mv);
+    if (r_cond.is_err()) {return r_cond.get_err();}
+
+    if (mv.stack[0] == condition) {
+        Label::Label label = mv.label_table[literal];
+
+        if (label.m_name == "") {
+            return ERR("JumpEQ: Label/Func: " + literal +" not found");
         }
 
-        if (m_operand_1.has_value()) {
-            jp = m_operand_1.get_value().get_ok();
-        }
-
-        mv.m_inst_ptr = jp;
+        mv.inst_ptr = label.m_jump_point;
     }
 
     return Void();
@@ -438,39 +457,41 @@ Result<None> JumpEQ::execute(Mv& mv) const {
 JumpNEQ::JumpNEQ() {}
 void JumpNEQ::print() const {
     std::cout << "JumpNEQ Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> JumpNEQ::execute(Mv& mv) const {
-    if (!m_operand_1.has_value()) {
-        return Err("JumpNEQ Condition missing", m_line_num, m_file);
+    if (args.len() < 2) {
+        return ERR("JumpNEQ: Missing Arguemnts");
     }
 
     if (mv.get_stack().peek().is_err()) {
-        return Err("JumpNEQ Empty stack", m_line_num, m_file);
+        return ERR("JumpNEQ: Empty stack");
     }
 
-    if (mv.get_stack().peek().get_ok() != m_operand_1.get_value().get_ok()) {
-        usize jp = mv.m_inst_ptr;
+    Arg arg_1 = args[0];
+    Arg arg_2 = args[1];
 
-        if (m_literal.has_value()) {
-            Label::Label label = mv.m_label_table[m_literal.get_value().get_ok()];
+    std::string literal;
 
-            if (label.m_name == "") {
-                return Err("JumpNEQ: Label/Func: " + m_literal.get_value().get_ok() +" not found", m_line_num, m_file);
-            }
+    if (arg_1.type > Arg::NUM) {
+        literal = arg_1.get_str(); 
+    } else {
+        return ERR("JumpNEQ: Invalid First Arguemnt");
+    }
 
-            mv.m_inst_ptr = label.m_jump_point;
+    i32 condition;
 
-            return Void();
+    Result r_cond = value_or_dot(arg_2, &condition, this, "JumpNEQ", mv);
+    if (r_cond.is_err()) {return r_cond.get_err();}
+
+    if (mv.stack[0] != condition) {
+        Label::Label label = mv.label_table[literal];
+
+        if (label.m_name != "") {
+            return ERR("JumpNEQ: Label/Func: " + literal +" not found");
         }
 
-        if (m_operand_1.has_value()) {
-            jp = m_operand_1.get_value().get_ok();
-        }
-
-        mv.m_inst_ptr = jp;
+        mv.inst_ptr = label.m_jump_point;
     }
 
     return Void();
@@ -479,54 +500,53 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
 // Inst::Push
 Push::Push() {}
 Push::Push(i32 operand) {
-    m_operand_1 = operand;
+    args.push(operand);
 }
 void Push::print() const {
     std::cout << "Push Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Push::execute(Mv& mv) const {
-    if (m_literal.has_value()) {
-        std::string lit = (VAL_IF_SOME_STR(m_literal));
-        for (char c : lit) {
-            mv.get_stack().push(c);
-        }
-
-        return Void();
+    if (args.len() == 0) {
+        return ERR("Push: Missing Argument");
     }
 
-    else if (m_operand_1.has_value()) {
-        Result r_push = mv.get_stack().push((VAL_IF_SOME_NUM(m_operand_1)));
-
-        if (r_push.is_err()) {
-            return Err("Push Inst: Stack Overflow", m_line_num, m_file);
+    for (usize i = 0; i < args.len(); ++i) {
+        if (mv.stack.push(0).is_err()) {
+            return ERR("Push: Stack Overflow");
         }
 
-        return Void();
-    } 
+        mv.stack.pop();
 
-    return Err("Push Inst: Missing Operands", m_line_num, m_file);
+        Arg a = args[i];
+
+        if (a.type == Arg::NUM) {
+            mv.stack.push(a.get_num());
+        } else if (a.type == Arg::STR) {
+            for (char c : a.get_str()) {
+                mv.stack.push(c); 
+            }
+        }
+    }
+
+    return Void();
 }
 
 // Inst::Pop
 Pop::Pop() {};
 void Pop::print() const {
     std::cout << "Pop Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Pop::execute(Mv& mv) const {
     Result r = mv.get_stack().pop();
 
     if (r.is_err()) {
-        return Err("Pop Inst: Stack Underflow", m_line_num, m_file);
+        return ERR("Pop : Stack Underflow");
     }
 
-    if (m_operand_1.has_value()) {
-        mv.registers[(VAL_IF_SOME_NUM(m_operand_1))] = r.get_ok(); 
+    if (args.len() == 1 && args[0].type == Arg::NUM) {
+        mv.registers[args[0].get_num()] = r.get_ok(); 
     }
 
     return Void();
@@ -536,26 +556,24 @@ Result<None> Pop::execute(Mv& mv) const {
 Dupe::Dupe() {}
 void Dupe::print() const {
     std::cout << "Dupe Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Dupe::execute(Mv& mv) const {
     usize index = 0;
-    if (m_operand_1.has_value()) {
-        index = m_operand_1.get_value().get_ok();
+    if (args.len() == 1 && args[0].type == Arg::NUM) {
+        index = args[0].get_num();
     }
 
     Result r_val = mv.get_stack().at(index);
 
     if (r_val.is_err()) {
-        return Err("Dupe: Empty Stack", m_line_num, m_file); 
+        return ERR("Dupe: Empty Stack"); 
     }
 
     Result r_push = mv.get_stack().push(r_val.get_ok());
 
     if (r_push.is_err()) {
-        return Err("Dupe: Stack Overflow", m_line_num, m_file);
+        return ERR("Dupe: Stack Overflow");
     }
 
     return Void();
@@ -565,9 +583,7 @@ Result<None> Dupe::execute(Mv& mv) const {
 Swap::Swap() {}
 void Swap::print() const {
     std::cout << "Swap Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Swap::execute(Mv& mv) const {
     Stack<i32, 1024>& s = mv.get_stack();
@@ -575,15 +591,11 @@ Result<None> Swap::execute(Mv& mv) const {
     Result b = s.pop();
 
     if (a.is_err() || b.is_err()) {
-        return Err("Failed to perform Swap inst: inital pop", m_line_num, m_file);
+        return ERR("Swap: Missing Elements From Stack");
     }
 
     Result a_push = s.push(a.get_ok());
     Result b_push = s.push(b.get_ok());
-
-    if (a_push.is_err() || b_push.is_err()) {
-        return Err("Failed to perform Swap inst: final pushes", m_line_num, m_file);
-    }
 
     return Void();
 }
@@ -592,18 +604,16 @@ Result<None> Swap::execute(Mv& mv) const {
 Dump::Dump() {}
 void Dump::print() const {
     std::cout << "Dump Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Dump::execute(Mv& mv) const {
     std::cout << "====Stack====\n";
 
-    if (m_operand_1.has_value()) {
-        Result r = mv.m_stack.at(m_operand_1.get_value().get_ok());
+    if (args.len() == 1 && args[0].type == Arg::NUM) {
+        Result r = mv.stack.at(args[0].get_num()).get_ok();
 
         if (r.is_err()) {
-            return Err("Dump: index out of bounds", m_line_num, m_file);
+            return ERR("Dump: index out of bounds");
         }
 
         std::cout << r.get_ok() << "\n";
@@ -617,16 +627,14 @@ Result<None> Dump::execute(Mv& mv) const {
 Print::Print() {}
 void Print::print() const {
     std::cout << "Print Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Print::execute(Mv& mv) const {
-    if (m_operand_1.has_value()) {
-        Result r = mv.m_stack.at(m_operand_1.get_value().get_ok());
+    if (args.len() == 1 && args[0].type == Arg::NUM) {
+        Result r = mv.stack.at(args[0].get_num()).get_ok();
 
         if (r.is_err()) {
-            return Err("Print: index out of bounds", m_line_num, m_file);
+            return ERR("Print: index out of bounds");
         }
 
         std::cout << (char)r.get_ok();
@@ -650,24 +658,41 @@ Result<None> Print::execute(Mv& mv) const {
 Move::Move() {}
 void Move::print() const {
     std::cout << "Move Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Move::execute(Mv& mv) const {
-    if (m_operand_1.has_value() && !m_operand_2.has_value()) {
-        return Push(mv.registers[(VAL_IF_SOME_NUM(m_operand_1))]).execute(mv);
+    // move dest src
+    //      ni  ni
+    i32 dst;
+    i32 src_val;
+    Option<i32> src;
+
+    if (args.len() < 1) {
+        return ERR("Move: Missing Argument(s)");
     }
 
-    if (!m_operand_1.has_value() || !m_operand_2.has_value()) {
-        return Err("Failed to perform Move Inst\n    Either operand was missing", m_line_num, m_file);
+    Result r_dst = value_or_dot(args[0], &dst, this, "Move", mv);
+    if (r_dst.is_err()) {
+        return r_dst.get_err();
     }
 
-    if ((VAL_IF_SOME_NUM(m_operand_1)) > 10) {
-        return Err("Failed to perform Move Inst\n    Reg index out of bounds", m_line_num, m_file);
+
+    if (args.len() > 1) {
+        Result r_src_val = value_or_dot(args[1], &src_val, this, "Move", mv);
+        if (r_src_val.is_err()) {
+            return r_src_val.get_err();
+        }
+
+        src.set_value(src_val);
     }
 
-    mv.registers[(VAL_IF_SOME_NUM(m_operand_1))] = (VAL_IF_SOME_NUM(m_operand_2));
+
+    if (src.has_value()) {
+        mv.registers[dst] = src_val;
+    } else {
+        return Push(mv.registers[dst]).execute(mv);
+    }
+
     return Void();
 }
 
@@ -675,38 +700,34 @@ Result<None> Move::execute(Mv& mv) const {
 Stop::Stop() {}
 void Stop::print() const {
     std::cout << "Stop Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Stop::execute(Mv& mv) const {
-    mv.m_halt = true;
+    mv.halt = true;
     return Void();
 }
 
 LabelInst::LabelInst() {}
 void LabelInst::print() const {
     std::cout << "Label Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> LabelInst::execute(Mv& mv) const {
-    mv.m_inst_ptr += 0;
+    mv.inst_ptr += 0;
     return Void();
 }
 
 Func::Func() {is_func = true;}
 void Func::print() const {
     std::cout << "Func Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Func::execute(Mv& mv) const {
-    if (mv.m_call_stack.get_len() == 0) {
+    if (mv.call_stack.get_len() == 0) {
         Inst::Jump j = Inst::Jump();
-        j.m_operand_1 = m_operand_1;
+        j.args.push(args[0].get_num());
+        j.file = file;
+        j.line_num = line_num;
         return j.execute(mv);
     }
 
@@ -716,15 +737,15 @@ Result<None> Func::execute(Mv& mv) const {
 Ret::Ret() {}
 void Ret::print() const {
     std::cout << "Ret Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Ret::execute(Mv& mv) const {
-    if (mv.m_call_stack.get_len() != 0) {
+    if (mv.call_stack.get_len() != 0) {
         Inst::Jump j = Inst::Jump();
 
-        j.m_operand_1 = mv.m_call_stack.pop().get_ok();
+        j.args.push(mv.call_stack.pop().get_ok());
+        j.file = file;
+        j.line_num = line_num;
 
         return j.execute(mv);
     }
@@ -735,17 +756,23 @@ Result<None> Ret::execute(Mv& mv) const {
 Call::Call() {}
 void Call::print() const {
     std::cout << "Call Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Call::execute(Mv& mv) const {
-    mv.m_call_stack.push(mv.m_inst_ptr);
+    if (args.len() < 1) {
+        return ERR("Call: Not Enough Arguemnts");
+    }
+
+    if (args[0].type == Arg::NUM) {
+        return ERR("Call: First Arguemnt: Invalid Type"); 
+    }
+
+    mv.call_stack.push(mv.inst_ptr);
     Inst::Jump j = Inst::Jump();
 
-    j.m_literal = m_literal;
-    j.m_file = m_file;
-    j.m_line_num = m_line_num;
+    j.args.push(Arg(args[0].get_str(), Arg::STR));
+    j.file = file;
+    j.line_num = line_num;
 
     return j.execute(mv);
 }
@@ -753,14 +780,12 @@ Result<None> Call::execute(Mv& mv) const {
 Wait::Wait() {}
 void Wait::print() const {
     std::cout << "Wait Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Wait::execute(Mv& mv) const {
     mv.get_stack();
-    if (m_operand_1.has_value()) {
-        sleep((VAL_IF_SOME_NUM(m_operand_1))); 
+    if (args.len() > 0 && args[0].type == Arg::NUM) {
+        sleep(args[0].get_num()); 
     }
 
     return Void();
@@ -769,9 +794,7 @@ Result<None> Wait::execute(Mv& mv) const {
 Size::Size() {}
 void Size::print() const {
     std::cout << "Size Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Size::execute(Mv& mv) const {
     return Push(mv.get_stack().get_len()).execute(mv);
@@ -780,69 +803,44 @@ Result<None> Size::execute(Mv& mv) const {
 Read::Read() {}
 void Read::print() const {
     std::cout << "Read Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Read::execute(Mv& mv) const {
     i32 address = 0;
-    if (m_literal.has_value() && m_literal.get_value().get_ok() == ".") {
-        Result r_address = mv.get_stack().peek();
 
-        if (r_address.is_ok()) {
-            address = r_address.get_ok();
-        }
-
-        return mv.get_stack().push(mv.heap[address]);
+    if (args.len() < 1) {
+        return ERR("Read: Missing Argument"); 
     }
 
-    if (!m_operand_1.has_value()) {
-        return Err("Read inst failed: missing address", m_line_num, m_file);
+    if (mv.stack.get_len() + 1 >= 1024) {
+        return ERR("Read: Stack Overflow");
     }
 
-    return mv.get_stack().push(mv.heap[m_operand_1.get_value().get_ok()]);
+    Result r_adr = value_or_dot(args[0], &address, this, "Read", mv);
+    if (r_adr.is_err()) {return r_adr.get_err();}
+
+    return Push(mv.heap[address]).execute(mv);
 }
 
 Write::Write() {}
 void Write::print() const {
     std::cout << "Write Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Write::execute(Mv& mv) const {
+    if (args.len() < 2) {
+        return ERR("Write: Missing Arguemnts");
+    }
+    
     i32 address = 0;
     i32 val     = 0;
 
-    if (m_literal.has_value() && m_literal.get_value().get_ok() == ".") {
-        if (m_operand_1.has_value()) {
-            Result r_val = mv.get_stack().peek();
-            
-            if (r_val.is_ok()) {
-                val = r_val.get_ok();
-            }
-            
-            address = m_operand_1.get_value().get_ok();
 
-        } else if (m_operand_2.has_value()){
-            Result r_add = mv.get_stack().peek();
-            
-            if (r_add.is_ok()) {
-                address = r_add.get_ok();
-            }
-            
-            val = m_operand_2.get_value().get_ok();
-        } else {
-            return Err("Write inst failed: Missing operand", m_line_num, m_file);
-        }
-    } else {
-        if (!m_operand_1.has_value() || !m_operand_2.has_value()) {
-            return Err("Write inst failed: Missing operand(s, m_line_num)", m_line_num, m_file);
-        }
-        
-        address = m_operand_1.get_value().get_ok();
-        val     = m_operand_2.get_value().get_ok();
-    }
+    Result r_adr = value_or_dot(args[0], &address, this, "Write", mv);
+    if (r_adr.is_err()) {return r_adr.get_err();}
+
+    Result r_val = value_or_dot(args[1], &val, this, "Write", mv);
+    if (r_val.is_err()) {return r_val.get_err();}
 
     mv.heap[address] = val;
     return Void();
@@ -851,29 +849,31 @@ Result<None> Write::execute(Mv& mv) const {
 Arr::Arr() {}
 void Arr::print() const {
     std::cout << "Arr Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Arr::execute(Mv& mv) const {
-    usize len = 0;
+    i32 len = 0;
     i32 def = -1;
 
-    if (m_operand_1.has_value()) {
-        len = m_operand_1.get_value().get_ok();
+    Result r_len = value_or_dot(args[0], &len, this, "Arr", mv);
+    if (r_len.is_err()) {
+        return r_len.get_err();
     }
 
-    if (m_operand_2.has_value()) {
-        def = m_operand_2.get_value().get_ok();
+    if (args.len() > 1) {
+        Result r_def = value_or_dot(args[1], &def, this, "Arr", mv);
+        if (r_def.is_err()) {
+            return r_def.get_err();
+        }
     }
 
     i32 start = mv.find_memory(len+1);
 
     if (start == -1) {
-        return Err("Arr: Memory Full: space for array not found", m_line_num, m_file);
+        return ERR("Arr: Memory Full: space for array not found");
     }
 
-    for (usize i = start; i < start + len; ++i) {
+    for (i32 i = start; i < start + len; ++i) {
         mv.heap[i] = def;
     }
 
@@ -883,28 +883,31 @@ Result<None> Arr::execute(Mv& mv) const {
 Str::Str() {}
 void Str::print() const {
     std::cout << "Str Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Str::execute(Mv& mv) const {
-    if (!m_literal.has_value()) {
-        return Err("Str: missing string", m_line_num, m_file);
+    if (args.len() < 1) {
+        return ERR("Str: Missing Argument");
+    }
+    std::string literal;
+
+    if (args[0].type == Arg::STR) {
+        literal = args[0].get_str();
+    } else {
+        return ERR("Str: Invalid Argument Type");
     }
 
-    usize len = m_literal.get_value().get_ok().length();
+    usize len = literal.length();
     i32 ptr = mv.find_memory(len+1);
 
     if (ptr == -1) {
-        return Err("Str: Memory Full: space for array not found", m_line_num, m_file);
+        return ERR("Str: Memory Full: space for array not found");
     }
-
-    std::string s = m_literal.get_value().get_ok();
 
     usize i;
     usize s_ptr = 0;
     for (i = ptr; s_ptr < len && i < ptr + len; ++i) {
-        mv.heap[i] = s[s_ptr++];
+        mv.heap[i] = literal[s_ptr++];
     }
 
     mv.heap[++i] = '\0';
@@ -913,11 +916,11 @@ Result<None> Str::execute(Mv& mv) const {
     Result r_ptr =  Inst::Push(ptr).execute(mv);
 
     if (r_len.is_err()) {
-        return Err("Str len: Stack Overflow", m_line_num, m_file);
+        return ERR("Str len: Stack Overflow");
     }
 
     if (r_ptr.is_err()) {
-        return Err("Str ptr: Stack Overflow", m_line_num, m_file);
+        return ERR("Str ptr: Stack Overflow");
     }
 
     return Void();
@@ -926,61 +929,69 @@ Result<None> Str::execute(Mv& mv) const {
 Include::Include() {}
 void Include::print() const {
     std::cout << "Include Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Include::execute(Mv& mv) const {
-    if (!m_literal.has_value()) {
-        return Err("Include Inst missing file", m_line_num, m_file);
+    if (args.len() < 1) {
+        return ERR("Include: Missing Argument");
     }
+
+    if (args[0].type != Arg::STR) {
+        return ERR("Include: Invalid Argument Type");
+    }
+
+    std::string literal = args[0].get_str();
 
     std::map<std::string, Label::Label> sec_map;
 
-    sec_map = mv.m_label_table;
+    sec_map = mv.label_table;
 
-    Result r_include_file = mv.include_program_from_file(m_literal.get_value().get_ok().c_str());
+    Result r_include_file = mv.include_program_from_file(literal);
 
     if (r_include_file.is_err()) {
-        return Err("File: " + m_literal.get_value().get_ok() + " not found", 
-                   m_line_num,
-                   m_file);
+        return ERR("File: " + literal + " not found");
     }
 
     i32 offset = r_include_file.get_ok();
-    mv.m_inst_ptr += offset;
+    mv.inst_ptr += offset;
 
     for (auto& [key, val] : sec_map) {
         val.m_jump_point += offset;
     }
 
-    for (usize i = offset; i < mv.m_program.size(); ++i) {
-        Inst::BaseInst*& inst = mv.m_program[i];
+    for (usize i = offset; i < mv.program.size(); ++i) {
+        Inst::BaseInst*& inst = mv.program[i];
         if (inst->is_func) {
-            i32 ip = inst->m_operand_1.get_value().get_ok();
-            inst->m_operand_1.set_value(ip + offset);
+            Result r_ip = inst->args.pop();
+            if (r_ip.is_err()) {
+                return ERR("Include: Function Missing Jump Point");
+            } else if (r_ip.get_ok().type != Arg::NUM) {
+                return ERR("Include: Function Argument Not a Number");
+            } 
+
+            inst->args.push(r_ip.get_ok().get_num() + offset);
         } 
     }
 
-    for (auto& [key, val] : mv.m_label_table) {
+    for (auto& [key, val] : mv.label_table) {
         if (sec_map.count(key) != 0) {
-                mv.m_label_table[key] = sec_map[key];
+                mv.label_table[key] = sec_map[key];
         }
 
-        if (mv.m_debug) {
+        if (mv.debug) {
             std::cout << "[ " << key << " ] = " 
                 << "Label( " << val.m_name << " , " << val.m_jump_point << " )\n"; 
         }
 
     }
 
-    if (mv.m_debug) {
-        usize i = 0;
-        for (auto inst : mv.m_program) {
-            std::cout << i++ << " - ";
-            inst->print();
-        }
-    }
+    // if (mv.debug) {
+    //     usize i = 0;
+    //     for (auto inst : mv.program) {
+    //         std::cout << i++ << " - ";
+    //         inst->print();
+    //     }
+    // }
 
     return Void();
 }
@@ -988,34 +999,25 @@ Result<None> Include::execute(Mv& mv) const {
 Input::Input() {}
 void Input::print() const {
     std::cout << "Input Inst\n";
-    std::cout << "    operand 1: " << (VAL_IF_SOME_NUM(m_operand_1)) << "\n";
-    std::cout << "    operand 2: " << (VAL_IF_SOME_NUM(m_operand_2)) << "\n";
-    std::cout << "    literal:   " << (VAL_IF_SOME_STR(m_literal)) << "\n";
+    args.print();
 }
 Result<None> Input::execute(Mv& mv) const {
-    if (m_literal.has_value()) {
-        printf("%s", m_literal.get_value().get_ok().c_str());
+    if (args.len() > 1 && args[0].type == Arg::STR) {
+        std::cout << args[0].get_str();
     }
 
     i32 num;
 
-    if (m_operand_1.has_value()) {
-        num = m_operand_1.get_value().get_ok();
+    if (args.len() > 2 && args[1].type == Arg::NUM) {
+        num = args[1].get_num();
     }
 
     scanf("%d", &num);
 
-    Inst::Push push = Inst::Push();
+    Inst::Push push = Inst::Push(num);
 
-    push.m_operand_1.set_value(num);
-    push.m_file = m_file;
-    push.m_line_num = m_line_num;
+    push.file = file;
+    push.line_num = line_num;
 
-    Result r_push = push.execute(mv);
-
-    if (r_push.is_err()) {
-        return Err("Input: Stack Overflow", m_line_num, m_file);
-    }
-
-    return Void();
+    return push.execute(mv);
 }

@@ -1,0 +1,54 @@
+# Prints a string from memory
+# Param: pointer to the first char on top of the stack
+# WARNING: This function consumes the pointer
+func print_str:
+call add_newline
+print_loop:
+read .
+print 0
+jmp_eq print_end 0
+pop
+inc
+jmp print_loop
+
+print_end:
+pop
+pop
+ret
+
+func add_newline:
+dupe
+
+count_loop:
+read .
+jmp_eq newline_end 0
+pop
+inc
+jmp count_loop
+
+newline_end:
+pop
+write . 10
+pop
+ret
+
+func Inc:
+push 1
+add
+ret
+
+func Dec:
+push -1
+add
+ret
+
+func clear:
+clear_loop:
+size
+jmp_eq clear_end 0
+pop
+pop
+jmp clear_loop
+clear_end:
+pop
+ret

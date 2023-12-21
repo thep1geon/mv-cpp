@@ -1,0 +1,8 @@
+push 69
+push 420
+
+swap
+
+pop
+
+dump

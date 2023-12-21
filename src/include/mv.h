@@ -10,17 +10,17 @@
 #include <vector>
 
 struct Mv {
-    Stack<i32, 1024> m_stack;
-    Stack<i32, 1024> m_call_stack;
-    std::vector<Inst::BaseInst*> m_program;
-    std::map<std::string, Label::Label> m_label_table;
+    Stack<i32, 1024> stack;
+    Stack<i32, 1024> call_stack;
+    std::vector<Inst::BaseInst*> program;
+    std::map<std::string, Label::Label> label_table;
     i32 registers[10];
     i32 heap[sizeof(i32) * 1024];
 
-    usize m_inst_ptr;
+    usize inst_ptr;
 
-    bool m_halt;
-    bool m_debug;
+    bool halt;
+    bool debug;
 
     Mv();
     ~Mv();
@@ -32,7 +32,7 @@ struct Mv {
     Stack<i32, 1024>& get_stack();
 
     Result<None> program_from_file(const char* filepath);
-    Result<i32> include_program_from_file(const char* filepath);
+    Result<i32> include_program_from_file(std::string& filepath);
 
     i32 find_memory(usize len);
 };

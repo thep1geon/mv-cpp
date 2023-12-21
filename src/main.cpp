@@ -2,16 +2,18 @@
 #include <string>
 
 int main(int argc, char** argv) {
+    if (argc < 2) {
+        Err("Missing File", __LINE__, __FILE_NAME__).fatal();
+    }
+
     Inst::init_inst_map();
 
     Mv mv = Mv();
 
-    if (argc > 1) {
-        mv.program_from_file(argv[1]);
+    mv.program_from_file(argv[1]);
 
-        if (argc > 2 && std::string(argv[2]) == "debug=true") {
-            mv.m_debug = true;
-        }
+    if (argc > 2 && std::string(argv[2]) == "debug") {
+        mv.debug = true;
     }
 
     Result r = mv.run();

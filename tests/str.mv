@@ -1,0 +1,6 @@
+include "std.mv"
+
+str "Hello World"
+call print_str
+
+dump

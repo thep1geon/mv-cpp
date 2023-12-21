@@ -46,7 +46,7 @@ struct Token {
         return type == TokenType::Empty && value == "" && line_num == 0;
     }
 
-    std::string type_to_str() {
+    std::string type_to_str() const {
         switch (type) {
             case TokenType::Empty:   return "Empty";
             case TokenType::Keyword: return "Keyword";
@@ -57,7 +57,7 @@ struct Token {
         }
     }
 
-    void print() {
+    void print() const {
         std::cout << type_to_str() << " " << value << "\n";
     }
 };

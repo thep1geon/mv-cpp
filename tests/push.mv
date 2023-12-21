@@ -1,0 +1,7 @@
+push 32
+
+push 42
+
+push 52
+
+dump

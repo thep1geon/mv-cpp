@@ -54,6 +54,10 @@ public:
         return m_data[m_size - index - 1];
     }
 
+    T operator[](usize index) {
+        return at(index).get_ok();
+    }
+
     void print() const {
         if (m_size == 0) {
             std::cout << "Empty Stack\n";

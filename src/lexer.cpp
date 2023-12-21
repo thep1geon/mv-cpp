@@ -112,9 +112,14 @@ std::vector<Token> Lexer::tokenize_line(i32 line_num) {
             break;
         }
         else if (peek().get_ok() == '.') {
-            tokens.push_back(Token(TokenType::Dot_Op, ".", line_num, m_file_path));
+            buf.push_back(consume());
+
+            if (peek().is_ok() && peek().get_ok() == '.') {
+                buf.push_back(consume());
+            }
+
+            tokens.push_back(Token(TokenType::Dot_Op, buf, line_num, m_file_path));
             buf.clear();
-            consume();
         }
         else if (peek().get_ok() == '-') {
             consume();

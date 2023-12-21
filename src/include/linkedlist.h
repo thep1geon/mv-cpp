@@ -43,24 +43,29 @@ public:
     }
 
     ~LinkedList() {
-        while (m_len > 0) {
-            pop();
+        Node<T>* current = m_head;
+        Node<T>* next;
+
+        while (current != nullptr) {
+            next = current->next;
+            delete current;
+            current = next;
         }
 
-        m_head = NULL;
-        m_len = 0;
+        m_head = nullptr; // Ensure that the head is set to null after deallocating all nodes
+        m_len = 0;        // Reset the length to zero
     }
 
-    Result<Node<T>> get_head() {
+    Result<Node<T>*> get_head() {
         if (m_len == 0 || m_head == NULL) {
             return Err("LinkedList missing head");
         }
 
 
-        return *m_head;
+        return m_head;
     }
 
-    Result<Node<T>> at(usize index) {
+    Result<Node<T>> at(usize index) const {
         if (m_len == 0) {
             return Err("LinkedList at(): Empty LinkedList");
         }
@@ -79,23 +84,8 @@ public:
         return *curr_node;
     }
 
-    Result<Node<T>*> operator[](usize index) {
-        if (m_len == 0) {
-            return Err("LinkedList []: Empty LinkedList");
-        }
-
-        if (index >= m_len) {
-            return Err("LinkedList []: Invalid Index");
-        }
-
-        Node<T>* curr_node = m_head;
-
-        usize i = 0;
-        for (; i < index; ++i) {
-            curr_node = curr_node->next;    
-        }
-
-        return curr_node;
+    T operator[](usize index) const {
+        return at(index).get_ok().data;
     }
 
 
@@ -122,19 +112,20 @@ public:
         }
 
         Node<T>* curr_node = m_head;
-        Node<T>* prev_node = NULL;
+        Node<T>* prev_node = nullptr;
 
-        while (curr_node->next != NULL) {
+        // Traverse until the last node
+        while (curr_node->next != nullptr) {
             prev_node = curr_node;
             curr_node = curr_node->next;
         }
 
         T popped_data = curr_node->data;
 
-        if (prev_node == NULL) {
-            m_head = NULL;
+        if (prev_node == nullptr) {
+            m_head = nullptr;  // If there was only one node
         } else {
-            prev_node->next = NULL;
+            prev_node->next = nullptr;
         }
 
         delete curr_node;
@@ -147,7 +138,7 @@ public:
         return m_len;
     }
 
-    void print() {
+    void print() const {
         if (m_len == 0) {
             std::cout << "Empty Linked List\n";
             return;
@@ -156,7 +147,10 @@ public:
         Node<T>* curr_node = m_head;
 
         while (curr_node != NULL) {
-            curr_node->print();
+            T data = curr_node->data;
+
+            std::cout << data << "\n";
+
             curr_node = curr_node->next;
         }
     }

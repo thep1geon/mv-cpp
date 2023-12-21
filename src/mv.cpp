@@ -14,38 +14,38 @@
 #include <algorithm>
 
 Mv::Mv() {
-    m_stack       = Stack<i32, 1024>();
-    m_call_stack  = Stack<i32, 1024>();
-    m_program     = std::vector<Inst::BaseInst*>();
-    m_label_table = std::map<std::string, Label::Label>();
-    m_inst_ptr    = 0;
-    m_halt        = false;
-    m_debug       = false;
+    stack       = Stack<i32, 1024>();
+    call_stack  = Stack<i32, 1024>();
+    program     = std::vector<Inst::BaseInst*>();
+    label_table = std::map<std::string, Label::Label>();
+    inst_ptr    = 0;
+    halt        = false;
+    debug       = false;
 
     memset(heap, 0, 4096 * sizeof(i32));
 }
 
 Mv::~Mv() {
-    for (usize i = 0; i < m_program.size(); ++i) {
-        delete m_program[i];
+    for (usize i = 0; i < this->program.size(); ++i) {
+        delete this->program[i];
     }
 
 }
 
 Result<None> Mv::run() {
-    if (m_debug) {
-        for (const auto& [key, val] : m_label_table) {
+    if (debug) {
+        for (const auto& [key, val] : label_table) {
             std::cout << "[ " << key << " ] = " 
                 << "Label( " << val.m_name << " , " << val.m_jump_point << " )\n"; 
         }
 
-        for (auto& inst : m_program) {
+        for (auto& inst : program) {
             inst->print();
         }
     }
 
-    for (; m_inst_ptr < m_program.size() && !m_halt; ++m_inst_ptr) {
-        Result r_inst = m_program[m_inst_ptr];
+    for (; inst_ptr < program.size() && !halt; ++inst_ptr) {
+        Result r_inst = program[inst_ptr];
 
         if (r_inst.is_err()) {
           r_inst.get_err().fatal();
@@ -53,7 +53,7 @@ Result<None> Mv::run() {
 
         Inst::BaseInst* inst = r_inst.get_ok();
 
-        if (m_debug) {
+        if (debug) {
             std::cout << "=====================\n";
             inst->print();
             std::cout << "=====================\n";
@@ -71,7 +71,7 @@ Result<None> Mv::run() {
 }
 
 void Mv::add_inst(Inst::BaseInst* i) {
-    m_program.push_back(i);
+    program.push_back(i);
 }
 
 Result<None> Mv::execute_inst(const Inst::BaseInst& inst) {
@@ -79,7 +79,7 @@ Result<None> Mv::execute_inst(const Inst::BaseInst& inst) {
 }
 
 Stack<i32, 1024>& Mv::get_stack() {
-    return m_stack;
+    return stack;
 }
 
 Result<None> Mv::program_from_file(const char* filepath) {
@@ -90,12 +90,12 @@ Result<None> Mv::program_from_file(const char* filepath) {
     Parser p(tokens);
     std::vector<Inst::BaseInst*> program = p.parse_tokens(*this);
 
-    m_program = program;
+    this->program = program;
 
     return Void();
 }
 
-Result<i32> Mv::include_program_from_file(const char* filepath) {
+Result<i32> Mv::include_program_from_file(std::string& filepath) {
     std::fstream f;
     f.open(filepath);
 
@@ -105,7 +105,7 @@ Result<i32> Mv::include_program_from_file(const char* filepath) {
     }
 
 
-    Lexer l(filepath); 
+    Lexer l(filepath.c_str()); 
 
     std::vector<std::vector<Token>> tokens = l.tokenize_file();
 
@@ -114,7 +114,7 @@ Result<i32> Mv::include_program_from_file(const char* filepath) {
     std::reverse(program.begin(), program.end());
 
     for (auto inst : program) {
-        m_program.insert(m_program.begin(), inst);
+        this->program.insert(this->program.begin(), inst);
     }
 
     return program.size();
