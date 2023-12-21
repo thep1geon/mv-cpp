@@ -1,7 +1,6 @@
 #ifndef __INST_H
 #define __INST_H
 
-#include "linkedlist.h"
 #include "result.h"
 #include "types.h"
 #include "label.h"
@@ -9,6 +8,7 @@
 #include "arg.h"
 #include <map>
 #include <string>
+#include <vector>
 
 class Mv; namespace Inst {
 
@@ -17,9 +17,9 @@ struct BaseInst {
     i32 line_num = 0;
     std::string file = "";
 
-    LinkedList<Arg> args;
+    std::vector<Arg> args;
 
-    virtual ~BaseInst() = default;
+    virtual ~BaseInst();
     virtual void print() const;
     virtual Result<None> execute(Mv& mv) const;
 };

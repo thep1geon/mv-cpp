@@ -29,7 +29,6 @@ Mv::~Mv() {
     for (usize i = 0; i < this->program.size(); ++i) {
         delete this->program[i];
     }
-
 }
 
 Result<None> Mv::run() {

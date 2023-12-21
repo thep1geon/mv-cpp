@@ -1,8 +1,26 @@
-push 420 69
+func fun:
+push 32
+ret
 
-write . ..
-pop 
+input "How many times do you want to loop? "
 
-read .
+jmp_eq end 0
 
+push 0
+fun_loop:
+pop 0
+pop 1
+
+call fun
+
+mov 1
+mov 0
+inc 
+jmp_lt fun_loop ..
+pop
+
+end:
+pop
+
+size
 dump

@@ -145,6 +145,8 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                 }
                 else if (tok.value == "func") {
                     inst = new Inst::Func();
+                    func_inst = true;
+                    inst->is_func = true;
                     inst->line_num = sublist[0].line_num;
                     inst->file = sublist[0].file;
 
@@ -159,6 +161,7 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                         }
                         else if (m_tokens[j][0].value == "func" 
                             && !found_ret) {
+                            delete inst;
                             Err("Func missing return found func instead", 
                                 tok.line_num,
                                 sublist[0].file)
@@ -166,14 +169,15 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                         }
                     }
 
-                    if (found_ret) {
-                        inst->args.push(Arg(j));
-                    } else {
-                        Err("Func missing return end of file found instead", 
+                    if (!found_ret) {
+                        delete inst;
+                        Err("Func missing return EOF found instead", 
                             tok.line_num,
                             sublist[0].file)
                             .fatal();
                     }
+
+                    inst->args.push_back(Arg(j));
                 }
                 else if (tok.value == "call") {
                     inst = new Inst::Call();
@@ -217,14 +221,14 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                 }
             } 
             else if (tok.type == TokenType::Int_Lit) {
-                inst->args.push(Arg(std::atoi(tok.value.c_str())));
+                inst->args.push_back(Arg(std::atoi(tok.value.c_str())));
             }
             else if (tok.type == TokenType::Str_Lit) {
-                inst->args.push(Arg(tok.value, Arg::STR));
+                inst->args.push_back(Arg(tok.value, Arg::STR));
             }
             else if (tok.type == TokenType::Ident 
                   || tok.type == TokenType::Dot_Op) {
-                inst->args.push(Arg(tok.value, Arg::IDENT));
+                inst->args.push_back(Arg(tok.value, Arg::IDENT));
             }
             else if (tok.type == TokenType::Label) {
                 if (!func_inst) {
@@ -233,7 +237,7 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                     inst->file = sublist[0].file;
                 }
 
-                inst->args.push(Arg(tok.value, Arg::STR));
+                inst->args.push_back(Arg(tok.value, Arg::STR));
                 mv.label_table[tok.value] = Label::Label(tok.value, i);
             }
             else {

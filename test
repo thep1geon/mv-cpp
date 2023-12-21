@@ -7,7 +7,7 @@ from colorama import Fore
 
 def run_test(file_name: str):
 
-    output: str = os.popen(f"mvi {file_name}.mv").read()
+    output: str = os.popen(f"../bin/mv {file_name}.mv").read()
 
     if str(file_name + ".test") not in list(os.listdir('.')):
         return [False, "", output]
@@ -19,7 +19,7 @@ def run_test(file_name: str):
 
 
 def record_test(file_name: str):
-    os.system(f"mvi {file_name}.mv > {file_name}.test")
+    os.system(f"../bin/mv {file_name}.mv > {file_name}.test")
 
 
 def main():

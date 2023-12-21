@@ -97,13 +97,14 @@ Result<None> BaseInst::execute(Mv& mv) const {
 }
 void BaseInst::print() const { 
     std::cout << "Base Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
+BaseInst::~BaseInst() {}
 // Inst::Add
 Add::Add() {}
 void Add::print() const {
     std::cout << "Add Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Add::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
@@ -119,7 +120,7 @@ Result<None> Add::execute(Mv& mv) const {
 Sub::Sub() {}
 void Sub::print() const {
     std::cout << "Sub Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Sub::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
@@ -136,7 +137,7 @@ Result<None> Sub::execute(Mv& mv) const {
 Multiply::Multiply() {}
 void Multiply::print() const {
     std::cout << "Multiply Inst\n"; 
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Multiply::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
@@ -152,7 +153,7 @@ Result<None> Multiply::execute(Mv& mv) const {
 Divide::Divide() {}
 void Divide::print() const {
     std::cout << "Divide Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Divide::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
@@ -172,7 +173,7 @@ Result<None> Divide::execute(Mv& mv) const {
 Inc::Inc() {}
 void Inc::print() const {
     std::cout << "Inc Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Inc::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
@@ -193,7 +194,7 @@ Result<None> Inc::execute(Mv& mv) const {
 Dec::Dec() {}
 void Dec::print() const {
     std::cout << "Dec Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Dec::execute(Mv& mv) const {
     Result a = mv.get_stack().pop();
@@ -215,10 +216,10 @@ Result<None> Dec::execute(Mv& mv) const {
 Jump::Jump() {}
 void Jump::print() const {
     std::cout << "Jump Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Jump::execute(Mv& mv) const {
-    if (args.len() < 1) {
+    if (args.size() < 1) {
         return ERR("Jump: Missing Arguemnts");
     }
 
@@ -242,10 +243,10 @@ Result<None> Jump::execute(Mv& mv) const {
 JumpGT::JumpGT() {}
 void JumpGT::print() const {
     std::cout << "JumpGT Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> JumpGT::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("JumpGT: Missing Arguemnts");
     }
 
@@ -285,10 +286,10 @@ Result<None> JumpGT::execute(Mv& mv) const {
 JumpGTE::JumpGTE() {}
 void JumpGTE::print() const {
     std::cout << "JumpGTE Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> JumpGTE::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("JumpGTE: Missing Arguemnts");
     }
 
@@ -328,10 +329,10 @@ Result<None> JumpGTE::execute(Mv& mv) const {
 JumpLT::JumpLT() {}
 void JumpLT::print() const {
     std::cout << "JumpLT Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> JumpLT::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("JumpLT: Missing Arguemnts");
     }
 
@@ -371,10 +372,10 @@ Result<None> JumpLT::execute(Mv& mv) const {
 JumpLTE::JumpLTE() {}
 void JumpLTE::print() const {
     std::cout << "JumpLTE Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> JumpLTE::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("JumpLTE: Missing Arguemnts");
     }
 
@@ -414,10 +415,10 @@ Result<None> JumpLTE::execute(Mv& mv) const {
 JumpEQ::JumpEQ() {}
 void JumpEQ::print() const {
     std::cout << "JumpEQ Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> JumpEQ::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("JumpEQ: Missing Arguemnts");
     }
 
@@ -457,10 +458,10 @@ Result<None> JumpEQ::execute(Mv& mv) const {
 JumpNEQ::JumpNEQ() {}
 void JumpNEQ::print() const {
     std::cout << "JumpNEQ Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> JumpNEQ::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("JumpNEQ: Missing Arguemnts");
     }
 
@@ -500,18 +501,18 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
 // Inst::Push
 Push::Push() {}
 Push::Push(i32 operand) {
-    args.push(operand);
+    args.push_back(Arg(operand));
 }
 void Push::print() const {
     std::cout << "Push Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Push::execute(Mv& mv) const {
-    if (args.len() == 0) {
+    if (args.size() == 0) {
         return ERR("Push: Missing Argument");
     }
 
-    for (usize i = 0; i < args.len(); ++i) {
+    for (usize i = 0; i < args.size(); ++i) {
         if (mv.stack.push(0).is_err()) {
             return ERR("Push: Stack Overflow");
         }
@@ -536,7 +537,7 @@ Result<None> Push::execute(Mv& mv) const {
 Pop::Pop() {};
 void Pop::print() const {
     std::cout << "Pop Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Pop::execute(Mv& mv) const {
     Result r = mv.get_stack().pop();
@@ -545,7 +546,7 @@ Result<None> Pop::execute(Mv& mv) const {
         return ERR("Pop : Stack Underflow");
     }
 
-    if (args.len() == 1 && args[0].type == Arg::NUM) {
+    if (args.size() == 1 && args[0].type == Arg::NUM) {
         mv.registers[args[0].get_num()] = r.get_ok(); 
     }
 
@@ -556,11 +557,11 @@ Result<None> Pop::execute(Mv& mv) const {
 Dupe::Dupe() {}
 void Dupe::print() const {
     std::cout << "Dupe Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Dupe::execute(Mv& mv) const {
     usize index = 0;
-    if (args.len() == 1 && args[0].type == Arg::NUM) {
+    if (args.size() == 1 && args[0].type == Arg::NUM) {
         index = args[0].get_num();
     }
 
@@ -583,7 +584,7 @@ Result<None> Dupe::execute(Mv& mv) const {
 Swap::Swap() {}
 void Swap::print() const {
     std::cout << "Swap Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Swap::execute(Mv& mv) const {
     Stack<i32, 1024>& s = mv.get_stack();
@@ -604,12 +605,12 @@ Result<None> Swap::execute(Mv& mv) const {
 Dump::Dump() {}
 void Dump::print() const {
     std::cout << "Dump Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Dump::execute(Mv& mv) const {
     std::cout << "====Stack====\n";
 
-    if (args.len() == 1 && args[0].type == Arg::NUM) {
+    if (args.size() == 1 && args[0].type == Arg::NUM) {
         Result r = mv.stack.at(args[0].get_num()).get_ok();
 
         if (r.is_err()) {
@@ -627,10 +628,10 @@ Result<None> Dump::execute(Mv& mv) const {
 Print::Print() {}
 void Print::print() const {
     std::cout << "Print Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Print::execute(Mv& mv) const {
-    if (args.len() == 1 && args[0].type == Arg::NUM) {
+    if (args.size() == 1 && args[0].type == Arg::NUM) {
         Result r = mv.stack.at(args[0].get_num()).get_ok();
 
         if (r.is_err()) {
@@ -658,7 +659,7 @@ Result<None> Print::execute(Mv& mv) const {
 Move::Move() {}
 void Move::print() const {
     std::cout << "Move Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Move::execute(Mv& mv) const {
     // move dest src
@@ -667,7 +668,7 @@ Result<None> Move::execute(Mv& mv) const {
     i32 src_val;
     Option<i32> src;
 
-    if (args.len() < 1) {
+    if (args.size() < 1) {
         return ERR("Move: Missing Argument(s)");
     }
 
@@ -677,7 +678,7 @@ Result<None> Move::execute(Mv& mv) const {
     }
 
 
-    if (args.len() > 1) {
+    if (args.size() > 1) {
         Result r_src_val = value_or_dot(args[1], &src_val, this, "Move", mv);
         if (r_src_val.is_err()) {
             return r_src_val.get_err();
@@ -700,7 +701,7 @@ Result<None> Move::execute(Mv& mv) const {
 Stop::Stop() {}
 void Stop::print() const {
     std::cout << "Stop Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Stop::execute(Mv& mv) const {
     mv.halt = true;
@@ -710,22 +711,22 @@ Result<None> Stop::execute(Mv& mv) const {
 LabelInst::LabelInst() {}
 void LabelInst::print() const {
     std::cout << "Label Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> LabelInst::execute(Mv& mv) const {
     mv.inst_ptr += 0;
     return Void();
 }
 
-Func::Func() {is_func = true;}
+Func::Func() {}
 void Func::print() const {
     std::cout << "Func Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Func::execute(Mv& mv) const {
     if (mv.call_stack.get_len() == 0) {
         Inst::Jump j = Inst::Jump();
-        j.args.push(args[0].get_num());
+        j.args.push_back(Arg(args[0].get_num()));
         j.file = file;
         j.line_num = line_num;
         return j.execute(mv);
@@ -737,13 +738,13 @@ Result<None> Func::execute(Mv& mv) const {
 Ret::Ret() {}
 void Ret::print() const {
     std::cout << "Ret Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Ret::execute(Mv& mv) const {
     if (mv.call_stack.get_len() != 0) {
         Inst::Jump j = Inst::Jump();
 
-        j.args.push(mv.call_stack.pop().get_ok());
+        j.args.push_back(Arg(mv.call_stack.pop().get_ok()));
         j.file = file;
         j.line_num = line_num;
 
@@ -756,10 +757,10 @@ Result<None> Ret::execute(Mv& mv) const {
 Call::Call() {}
 void Call::print() const {
     std::cout << "Call Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Call::execute(Mv& mv) const {
-    if (args.len() < 1) {
+    if (args.size() < 1) {
         return ERR("Call: Not Enough Arguemnts");
     }
 
@@ -770,7 +771,7 @@ Result<None> Call::execute(Mv& mv) const {
     mv.call_stack.push(mv.inst_ptr);
     Inst::Jump j = Inst::Jump();
 
-    j.args.push(Arg(args[0].get_str(), Arg::STR));
+    j.args.push_back(Arg(args[0].get_str(), Arg::STR));
     j.file = file;
     j.line_num = line_num;
 
@@ -780,11 +781,11 @@ Result<None> Call::execute(Mv& mv) const {
 Wait::Wait() {}
 void Wait::print() const {
     std::cout << "Wait Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Wait::execute(Mv& mv) const {
     mv.get_stack();
-    if (args.len() > 0 && args[0].type == Arg::NUM) {
+    if (args.size() > 0 && args[0].type == Arg::NUM) {
         sleep(args[0].get_num()); 
     }
 
@@ -794,7 +795,7 @@ Result<None> Wait::execute(Mv& mv) const {
 Size::Size() {}
 void Size::print() const {
     std::cout << "Size Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Size::execute(Mv& mv) const {
     return Push(mv.get_stack().get_len()).execute(mv);
@@ -803,12 +804,12 @@ Result<None> Size::execute(Mv& mv) const {
 Read::Read() {}
 void Read::print() const {
     std::cout << "Read Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Read::execute(Mv& mv) const {
     i32 address = 0;
 
-    if (args.len() < 1) {
+    if (args.size() < 1) {
         return ERR("Read: Missing Argument"); 
     }
 
@@ -825,10 +826,10 @@ Result<None> Read::execute(Mv& mv) const {
 Write::Write() {}
 void Write::print() const {
     std::cout << "Write Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Write::execute(Mv& mv) const {
-    if (args.len() < 2) {
+    if (args.size() < 2) {
         return ERR("Write: Missing Arguemnts");
     }
     
@@ -849,7 +850,7 @@ Result<None> Write::execute(Mv& mv) const {
 Arr::Arr() {}
 void Arr::print() const {
     std::cout << "Arr Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Arr::execute(Mv& mv) const {
     i32 len = 0;
@@ -860,7 +861,7 @@ Result<None> Arr::execute(Mv& mv) const {
         return r_len.get_err();
     }
 
-    if (args.len() > 1) {
+    if (args.size() > 1) {
         Result r_def = value_or_dot(args[1], &def, this, "Arr", mv);
         if (r_def.is_err()) {
             return r_def.get_err();
@@ -883,10 +884,10 @@ Result<None> Arr::execute(Mv& mv) const {
 Str::Str() {}
 void Str::print() const {
     std::cout << "Str Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Str::execute(Mv& mv) const {
-    if (args.len() < 1) {
+    if (args.size() < 1) {
         return ERR("Str: Missing Argument");
     }
     std::string literal;
@@ -929,10 +930,10 @@ Result<None> Str::execute(Mv& mv) const {
 Include::Include() {}
 void Include::print() const {
     std::cout << "Include Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Include::execute(Mv& mv) const {
-    if (args.len() < 1) {
+    if (args.size() < 1) {
         return ERR("Include: Missing Argument");
     }
 
@@ -962,14 +963,13 @@ Result<None> Include::execute(Mv& mv) const {
     for (usize i = offset; i < mv.program.size(); ++i) {
         Inst::BaseInst*& inst = mv.program[i];
         if (inst->is_func) {
-            Result r_ip = inst->args.pop();
-            if (r_ip.is_err()) {
-                return ERR("Include: Function Missing Jump Point");
-            } else if (r_ip.get_ok().type != Arg::NUM) {
-                return ERR("Include: Function Argument Not a Number");
-            } 
+            Arg tmp = inst->args[0];
+            inst->args[0] = inst->args[1];
+            inst->args[1] = tmp;
 
-            inst->args.push(r_ip.get_ok().get_num() + offset);
+            inst->args.pop_back();
+
+            inst->args.insert(inst->args.begin(), Arg(tmp.get_num() + offset));
         } 
     }
 
@@ -985,30 +985,22 @@ Result<None> Include::execute(Mv& mv) const {
 
     }
 
-    // if (mv.debug) {
-    //     usize i = 0;
-    //     for (auto inst : mv.program) {
-    //         std::cout << i++ << " - ";
-    //         inst->print();
-    //     }
-    // }
-
     return Void();
 }
 
 Input::Input() {}
 void Input::print() const {
     std::cout << "Input Inst\n";
-    args.print();
+    for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Input::execute(Mv& mv) const {
-    if (args.len() > 1 && args[0].type == Arg::STR) {
+    if (args.size() > 0 && args[0].type == Arg::STR) {
         std::cout << args[0].get_str();
     }
 
     i32 num;
 
-    if (args.len() > 2 && args[1].type == Arg::NUM) {
+    if (args.size() > 1 && args[1].type == Arg::NUM) {
         num = args[1].get_num();
     }
 

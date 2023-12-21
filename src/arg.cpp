@@ -6,11 +6,9 @@
 
 Arg::Arg() : type(NUM), data(0) {}
 
-Arg::Arg(std::string str, Type type) : type(type), data(std::move(str)) {}
+Arg::Arg(const std::string& str, Type type) : type(type), data(std::move(str)) {}
 
 Arg::Arg(i32 val) : type(NUM), data(val) {}
-
-Arg::Arg(std::string str) : type(STR), data(std::move(str)) {}
 
 Arg::Arg(const char* str) : type(STR), data(std::move(str)) {}
 

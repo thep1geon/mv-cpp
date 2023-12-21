@@ -14,11 +14,10 @@ struct Arg {
 
     Arg();
 
-    Arg(std::string str, Type type);
+    Arg(const std::string& str, Type type);
 
     Arg(i32 val);
 
-    Arg(std::string str);
     Arg(const char* str);
 
     ~Arg() = default;
