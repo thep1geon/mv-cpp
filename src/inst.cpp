@@ -182,7 +182,7 @@ Result<None> Inc::execute(Mv& mv) const {
         return ERR("Inc: Empty Stack");
     }
 
-    Result r_push = mv.get_stack().push(a.get_ok()+1);
+    Result r_push = mv.get_stack().push(a.get_ok() + 1);
 
     if (r_push.is_err()) {
         return ERR("Inc: Stack Overflow");
@@ -691,7 +691,13 @@ Result<None> Move::execute(Mv& mv) const {
     if (src.has_value()) {
         mv.registers[dst] = src_val;
     } else {
-        return Push(mv.registers[dst]).execute(mv);
+        Inst::Push p = Inst::Push(mv.registers[dst]);
+        p.line_num = line_num;
+        p.file = file;
+        Result r_push = p.execute(mv);
+        if (r_push.is_err()) {
+            return r_push;
+        }
     }
 
     return Void();
@@ -769,6 +775,23 @@ Result<None> Call::execute(Mv& mv) const {
     }
 
     mv.call_stack.push(mv.inst_ptr);
+
+    for (i32 i = 1; i < args.size(); ++i) {
+        i32 num;
+        Result r_num = value_or_dot(args[i], &num, this, "Call", mv);
+        if (r_num.is_err()) {
+            return r_num.get_err();
+        }
+    
+        Inst::Push p = Inst::Push(num);
+        p.line_num = line_num;
+        p.file = file;
+        Result r_push = p.execute(mv);
+        if (r_push.is_err()) {
+            return r_push;
+        }
+    }
+    
     Inst::Jump j = Inst::Jump();
 
     j.args.push_back(Arg(args[0].get_str(), Arg::STR));
@@ -798,7 +821,16 @@ void Size::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Size::execute(Mv& mv) const {
-    return Push(mv.get_stack().get_len()).execute(mv);
+    Inst::Push p = Inst::Push(mv.stack.get_len());
+    p.line_num = line_num;
+    p.file = file;
+
+    Result r_push = p.execute(mv);
+    if (r_push.is_err()) {
+        return r_push;
+    }
+
+    return Void();
 }
 
 Read::Read() {}
@@ -820,7 +852,16 @@ Result<None> Read::execute(Mv& mv) const {
     Result r_adr = value_or_dot(args[0], &address, this, "Read", mv);
     if (r_adr.is_err()) {return r_adr.get_err();}
 
-    return Push(mv.heap[address]).execute(mv);
+    Inst::Push p = Inst::Push(mv.heap[address]);
+    p.line_num = line_num;
+    p.file = file;
+
+    Result r_push = p.execute(mv);
+    if (r_push.is_err()) {
+        return r_push;
+    }
+
+    return Void();
 }
 
 Write::Write() {}
@@ -878,7 +919,16 @@ Result<None> Arr::execute(Mv& mv) const {
         mv.heap[i] = def;
     }
 
-    return Inst::Push(start).execute(mv);
+    Inst::Push p = Inst::Push(start);
+    p.line_num = line_num;
+    p.file = file;
+
+    Result r_push = p.execute(mv);
+    if (r_push.is_err()) {
+        return r_push;
+    }
+
+    return Void();
 }
 
 Str::Str() {}
