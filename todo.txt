@@ -36,6 +36,8 @@
     ~ # the Add function and set x to that value
     ~ str "Hello World" | str_ptr # Would also work too
 
+[X] Escape Character Support
+
 [ ] Preprocess the include instruction
     We can process the include instruction during compile time rather than
     runtime. This would let the included file run code and include other 

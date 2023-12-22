@@ -106,7 +106,9 @@ std::vector<Token> Lexer::tokenize_line(i32 line_num) {
                             case 't':  consume(); buf.push_back('\t'); break;
                             case 'r':  consume(); buf.push_back('\r'); break;
                             case '\\': consume(); buf.push_back('\\'); break;
-                            case '\b': consume(); buf.push_back('\b'); break;
+                            case 'b':  consume(); buf.push_back('\b'); break;
+                            case '\'':  consume(); buf.push_back('\''); break;
+                            case '\"':  consume(); buf.push_back('\"'); break;
                             default: Err("Lexer: Unknown Escape Character", line_num, m_file_path).fatal();
                         }
                     } else {
