@@ -121,6 +121,11 @@ std::vector<Token> Lexer::tokenize_line(i32 line_num) {
             tokens.push_back(Token(TokenType::Dot_Op, buf, line_num, m_file_path));
             buf.clear();
         }
+        else if (peek().get_ok() == '|') {
+            consume();
+            tokens.push_back(Token(TokenType::Pipe_Op, "|", line_num, m_file_path));
+            buf.clear();
+        }
         else if (peek().get_ok() == '-') {
             consume();
             while (peek().is_ok() && std::isdigit(peek().get_ok())) {

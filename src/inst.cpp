@@ -939,10 +939,6 @@ Result<None> Arr::execute(Mv& mv) const {
 
     i32 start = mv.find_memory(len+1);
 
-    if (start == -1) {
-        return ERR("Arr: Memory Full: space for array not found");
-    }
-
     for (i32 i = start; i < start + len; ++i) {
         mv.heap[i] = def;
     }
@@ -979,13 +975,9 @@ Result<None> Str::execute(Mv& mv) const {
     usize len = literal.length();
     i32 ptr = mv.find_memory(len+1);
 
-    if (ptr == -1) {
-        return ERR("Str: Memory Full: space for array not found");
-    }
-
-    usize i;
+    usize i = ptr;
     usize s_ptr = 0;
-    for (i = ptr; s_ptr < len && i < ptr + len; ++i) {
+    for (; s_ptr < len && i < ptr + len; ++i) {
         mv.heap[i] = literal[s_ptr++];
     }
 

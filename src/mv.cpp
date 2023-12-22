@@ -123,7 +123,7 @@ Result<i32> Mv::include_program_from_file(std::string& filepath) {
 
 i32 Mv::find_memory(usize len) {
 
-    for (usize k = 0; k < 50; ++k) {
+    for (usize k = 0; k < 500; ++k) {
         for (size_t i = rand()%(4096-len); i < 4096 - len; i++) {
             size_t j;
             for (j = 0; j < len; j++) {

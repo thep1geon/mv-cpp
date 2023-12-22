@@ -1,8 +1,14 @@
 include "math.mv"
 include "std.mv"
 
-str "String"
-pop p
+str "This is a string" | p
 
 call print_str p
-call fib 12
+
+set x 0
+
+print x
+
+call Add x 15 | x
+
+print x

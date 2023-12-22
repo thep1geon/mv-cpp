@@ -1,0 +1,11 @@
+include "../math.mv"
+
+set x 15
+
+print x
+
+call Add x 69 | x
+
+print x
+
+dump

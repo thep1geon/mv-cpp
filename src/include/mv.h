@@ -35,6 +35,7 @@ struct Mv {
     Result<None> program_from_file(const char* filepath);
     Result<i32> include_program_from_file(std::string& filepath);
 
+    // Syscalls
     i32 find_memory(usize len);
 };
 

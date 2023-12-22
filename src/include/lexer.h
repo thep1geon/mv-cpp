@@ -19,6 +19,7 @@ enum class TokenType {
     Int_Lit,
     Str_Lit,
     Dot_Op,
+    Pipe_Op,
 };
 
 struct Token {
