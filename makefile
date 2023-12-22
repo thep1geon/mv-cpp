@@ -35,4 +35,3 @@ clean:
 	rm -rf $(OBJ_DIR) $(TARGET_DIR)
 
 .PHONY: all run clean
-

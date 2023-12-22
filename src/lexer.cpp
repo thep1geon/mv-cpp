@@ -98,10 +98,30 @@ std::vector<Token> Lexer::tokenize_line(i32 line_num) {
         else if (peek().get_ok() == '"' || peek().get_ok() == '\'') {
             m_cursor++;
             while (peek().is_ok() && peek().get_ok() != '"' && peek().get_ok() != '\'') {
-                buf.push_back(consume());
+                if (peek().get_ok() == '\\') {
+                    consume();
+                    if (peek().is_ok()) {
+                        switch (peek().get_ok()) {
+                            case 'n':  consume(); buf.push_back('\n'); break;
+                            case 't':  consume(); buf.push_back('\t'); break;
+                            case 'r':  consume(); buf.push_back('\r'); break;
+                            case '\\': consume(); buf.push_back('\\'); break;
+                            case '\b': consume(); buf.push_back('\b'); break;
+                            default: Err("Lexer: Unknown Escape Character", line_num, m_file_path).fatal();
+                        }
+                    } else {
+                        buf.push_back('\\');
+                    }
+                } else {
+                    buf.push_back(consume());
+                }
             }  
 
-            if (peek().is_err() || peek().get_ok() == '"' || peek().get_ok() == '\'') {
+            if (peek().is_err()) {
+                Err("Lexer: Missing Ending Quotes", line_num, m_file_path).fatal();
+            }
+
+            if (peek().get_ok() == '"' || peek().get_ok() == '\'') {
                 m_cursor++;
             }
 

@@ -1,7 +1,7 @@
-include "math.mv"
 include "std.mv"
+include "math.mv"
 
-str "This is a string" | p
+str "This is a string\n" | p
 
 call print_str p
 
