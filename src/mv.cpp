@@ -45,6 +45,7 @@ Result<None> Mv::run() {
         }
     }
 
+
     for (; inst_ptr < program.size() && !halt; ++inst_ptr) {
         Result r_inst = program[inst_ptr];
 
@@ -89,7 +90,7 @@ Result<None> Mv::program_from_file(const char* filepath) {
     std::vector<std::vector<Token>> tokens = l.tokenize_file();
 
     Parser p(tokens);
-    std::vector<Inst::BaseInst*> program = p.parse_tokens(*this);
+    std::vector<Inst::BaseInst*> program = p.parse_tokens(this);
 
     this->program = program;
 
@@ -111,7 +112,7 @@ Result<i32> Mv::include_program_from_file(std::string& filepath) {
     std::vector<std::vector<Token>> tokens = l.tokenize_file();
 
     Parser p(tokens);
-    std::vector<Inst::BaseInst*> program = p.parse_tokens(*this);
+    std::vector<Inst::BaseInst*> program = p.parse_tokens(this);
     std::reverse(program.begin(), program.end());
 
     for (auto inst : program) {

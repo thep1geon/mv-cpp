@@ -10,7 +10,7 @@ Parser::Parser(std::vector<std::vector<Token>> tokens) {
     m_tokens = tokens;
 }
 
-const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
+const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
     i32 i = 0;
     for (std::vector<Token>& sublist : m_tokens) {
         i32 inner_i = 0;;
@@ -210,8 +210,8 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                     inst->line_num = sublist[0].line_num;
                     inst->file = sublist[0].file;
                 }
-                else if (tok.value == "include") {
-                    inst = new Inst::Include();
+                else if (tok.value == "import") {
+                    inst = new Inst::Import();
                     inst->line_num = sublist[0].line_num;
                     inst->file = sublist[0].file;
                 }
@@ -249,9 +249,11 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                 pipe_op = true;
 
                 if (inner_i + 1 > (i32)sublist.size()) {
-                    Err("Parser: Pipe operator missing ident", sublist[0].line_num, sublist[0].file).fatal();
+                    Err("Parser: Pipe operator missing ident", 
+                        sublist[0].line_num, sublist[0].file).fatal();
                 } else if (sublist[inner_i+1].type != TokenType::Ident) {
-                    Err("Parser: Pipe operator unexpected type found", sublist[0].line_num, sublist[0].file).fatal();
+                    Err("Parser: Pipe operator unexpected type found", 
+                        sublist[0].line_num, sublist[0].file).fatal();
                 }
                 
                 Inst::BaseInst* pop = new Inst::Pop();
@@ -279,7 +281,7 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv& mv) {
                 }
 
                 inst->args.push_back(Arg(tok.value, Arg::STR));
-                mv.label_table[tok.value] = Label::Label(tok.value, i);
+                mv->label_table[tok.value] = Label::Label(tok.value, i);
             }
             else {
                 inst = new Inst::BaseInst;

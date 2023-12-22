@@ -28,28 +28,26 @@ Dependencies
 - Make
 - gcc
 
-For Debian like distros: ```sudo apt-get install make gcc```
-
 1. Clone the repo: ```git clone https://www.github.com/TheP1geon/mv```
 2. Change the INLCUDE_PATH in main.c to the full path of the include folder of the repo
 3. Compile with the makefile ```make```
 4. [Write](#writing-your-own-programs) your own program or use one of the examples
-5. Run: ```./bin/mv <program> [-debug=true]```
+5. Run: ```./bin/mv <program> [debug]```
 
 ## Writing Your Own Programs
 
 1. Make a new file ending in ".mv"
-2. Write the program (see the [Docs](https://github.com/TheP1geon/mv/blob/main/docs.md))
+2. Write the program (see the [Docs](https://github.com/TheP1geon/mv-cpp/blob/main/docs.md))
 3. Save the file
 4. Run the program with the compiled vm
 
 ## Examples
 
-```mv
-include "std.mv" ;; Inlcude the standard library
+```vasm
+import "std.mv" # Include the standard library
 
-str "Hello World!"
-call print_str ;; Expects the pointer on the top of the stack
+str "Hello World!" | p # create a new string in memory and set p to the ptr
+call print_str p # Pushes p onto the stack before calling print_str
 ```
 
 Prints "Hello World!" with a newline to the standard output
@@ -70,6 +68,7 @@ Feel free to contribute to the project. Be sure to:
 
 Run:
 ```bash
-./test.py
+make
+bin/mv app.mv
 ```
-To see all the examples and their output
+Compile the virtual machine and read the file "app.mv"

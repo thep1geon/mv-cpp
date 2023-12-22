@@ -1,5 +1,3 @@
-include "math.mv"
-
 # Prints a string from memory
 # Param: pointer to the first char on top of the stack
 # WARNING: This function consumes the pointer

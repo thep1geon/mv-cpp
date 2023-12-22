@@ -85,7 +85,7 @@ void Inst::init_inst_map(void) {
     Inst::inst_map_str["str"] = "str";
     Inst::inst_map_str["arr"] = "arr";
 
-    Inst::inst_map_str["include"] = "include";
+    Inst::inst_map_str["import"] = "import";
 
     Inst::inst_map_str["input"] = "input";
     Inst::inst_map_str["set"] = "set";
@@ -992,67 +992,6 @@ Result<None> Str::execute(Mv& mv) const {
     return Void();
 }
 
-Include::Include() {}
-void Include::print() const {
-    std::cout << "Include Inst\n";
-    for (Arg a : args) { std::cout << a << "\n";}
-}
-Result<None> Include::execute(Mv& mv) const {
-    if (args.size() < 1) {
-        return ERR("Include: Missing Argument");
-    }
-
-    if (args[0].type != Arg::STR) {
-        return ERR("Include: Invalid Argument Type");
-    }
-
-    std::string literal = args[0].get_str();
-
-    std::map<std::string, Label::Label> sec_map;
-
-    sec_map = mv.label_table;
-
-    Result r_include_file = mv.include_program_from_file(literal);
-
-    if (r_include_file.is_err()) {
-        return ERR("File: " + literal + " not found");
-    }
-
-    i32 offset = r_include_file.get_ok();
-    mv.inst_ptr += offset;
-
-    for (auto& [key, val] : sec_map) {
-        val.m_jump_point += offset;
-    }
-
-    for (usize i = offset; i < mv.program.size(); ++i) {
-        Inst::BaseInst*& inst = mv.program[i];
-        if (inst->is_func) {
-            Arg tmp = inst->args[0];
-            inst->args[0] = inst->args[1];
-            inst->args[1] = tmp;
-
-            inst->args.pop_back();
-
-            inst->args.insert(inst->args.begin(), Arg(tmp.get_num() + offset));
-        } 
-    }
-
-    for (auto& [key, val] : mv.label_table) {
-        if (sec_map.count(key) != 0) {
-                mv.label_table[key] = sec_map[key];
-        }
-
-        if (mv.debug) {
-            std::cout << "[ " << key << " ] = " 
-                << "Label( " << val.m_name << " , " << val.m_jump_point << " )\n"; 
-        }
-
-    }
-
-    return Void();
-}
-
 Input::Input() {}
 void Input::print() const {
     std::cout << "Input Inst\n";
@@ -1126,3 +1065,63 @@ Result<None> Del::execute(Mv& mv) const {
 
     return Void();
 }
+
+Import::Import() {}
+void Import::print() const {
+    std::cout << "Import Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> Import::execute(Mv& mv) const {
+    if (args.size() < 1) {
+        return ERR("Import: Missing Argument");
+    }
+
+    if (args[0].type != Arg::STR) {
+        return ERR("Import: Invalid Argument Type");
+    }
+
+    std::string literal = args[0].get_str();
+
+    std::map<std::string, Label::Label> sec_map;
+
+    sec_map = mv.label_table;
+
+    Result r_include_file = mv.include_program_from_file(literal);
+
+    if (r_include_file.is_err()) {
+        return ERR("Import: File: " + literal + " not found");
+    }
+
+    i32 offset = r_include_file.get_ok();
+    mv.inst_ptr += offset;
+
+    for (auto& [key, val] : sec_map) {
+        val.m_jump_point += offset;
+    }
+
+    for (usize i = offset; i < mv.program.size(); ++i) {
+        Inst::BaseInst*& inst = mv.program[i];
+        if (inst->is_func) {
+            Arg tmp = inst->args[0];
+            inst->args[0] = inst->args[1];
+            inst->args[1] = tmp;
+
+            inst->args.pop_back();
+
+            inst->args.insert(inst->args.begin(), Arg(tmp.get_num() + offset));
+        } 
+    }
+
+    for (auto& [key, val] : mv.label_table) {
+        if (sec_map.count(key) != 0) {
+                mv.label_table[key] = sec_map[key];
+        }
+
+        if (mv.debug) {
+            std::cout << "[ " << key << " ] = " 
+                << "Label( " << val.m_name << " , " << val.m_jump_point << " )\n"; 
+        }
+
+    }
+
+    return Void();}

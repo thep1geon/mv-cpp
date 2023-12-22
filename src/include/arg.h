@@ -31,4 +31,3 @@ struct Arg {
 std::ostream& operator<<(std::ostream& os, const Arg& a);
 
 #endif  //__ARG_H
-

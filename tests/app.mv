@@ -1,4 +1,4 @@
-include "main.mv"
+import "main.mv"
 
 call push_32
 jmp init_main

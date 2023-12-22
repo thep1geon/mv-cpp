@@ -1,7 +1,7 @@
-include "math.mv"
-include "std.mv"
+import "math.mv"
+import "std.mv"
 
-str "This is a \'string\'" | p
+str "This is a \"string\"" | p
 
 call print_str p
 

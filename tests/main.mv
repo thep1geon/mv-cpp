@@ -1,7 +1,7 @@
 jmp fun
 init_main:
-include "std.mv"
-include "math.mv"
+import "std.mv"
+import "math.mv"
 push 420
 str "Now initalizing main"
 call print_str

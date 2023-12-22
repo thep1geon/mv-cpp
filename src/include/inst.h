@@ -230,13 +230,6 @@ public:
     Result<None> execute(Mv& mv) const override;
 };
 
-struct Include : public BaseInst {
-public:
-    Include();
-    void print() const override;
-    Result<None> execute(Mv& mv) const override;
-};
-
 extern std::map<std::string, std::string> inst_map_str;
 void init_inst_map(void);
 
@@ -256,6 +249,12 @@ public:
 struct Del : public BaseInst {
 public:
     Del();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+struct Import : public BaseInst {
+public:
+    Import();
     void print() const override;
     Result<None> execute(Mv& mv) const override;
 };

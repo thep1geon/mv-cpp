@@ -1,4 +1,4 @@
-include "std.mv"
+import "std.mv"
 
 str "Hello World"
 call print_str

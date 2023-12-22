@@ -15,7 +15,7 @@ public:
     Parser(std::vector<std::vector<Token>> tokens);
     ~Parser() = default;
 
-    const std::vector<Inst::BaseInst*> parse_tokens(Mv& mv);
+    const std::vector<Inst::BaseInst*> parse_tokens(Mv* mv);
 };
 
 #endif  //__PARSER_H
