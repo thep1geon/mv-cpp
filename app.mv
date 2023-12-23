@@ -1,8 +1,9 @@
-import "math.mv"
-import "std.mv"
+import "stdlib.mv"
 
-str "This is a \"string\""
-pop p
+jmp init_stdlib
+
+start:
+str "This is a \"string\"" | p
 
 call print_str p
 
@@ -10,18 +11,15 @@ set x 0
 
 print x
 
-call Add x 3
-pop x
+call Add x 3 | x
 
 print x
 
-call fact 3
-pop fact
+call fact x | fact
 
 print fact
 
-call fact fact
-pop fact
+call fact fact | fact
 
 print fact
 
@@ -34,3 +32,9 @@ dump
 ret
 
 call a 32 ..
+
+call clear
+
+rand 1 10
+
+dump

@@ -235,6 +235,11 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
                     inst->line_num = sublist[0].line_num;
                     inst->file = sublist[0].file;
                 }
+                else if (tok.value == "rand") {
+                    inst = new Inst::Rand();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
                 else {
                     Err("Unknown Keyword: " + tok.value, 
                         sublist[0].line_num, sublist[0].file).fatal();

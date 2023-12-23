@@ -258,6 +258,12 @@ public:
     void print() const override;
     Result<None> execute(Mv& mv) const override;
 };
+struct Rand : public BaseInst {
+public:
+    Rand();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
 }
 
 #endif  //__INST_H

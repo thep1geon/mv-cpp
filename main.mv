@@ -1,5 +1,0 @@
-init_main:
-include "std.mv"
-include "math.mv"
-
-jmp start

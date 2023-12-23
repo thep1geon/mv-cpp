@@ -1,45 +1,6 @@
 # Prints a string from memory
 # Param: pointer to the first char on top of the stack
 # WARNING: This function consumes the pointer
-func print_str:
-print_loop:
-read .
-print 0
-jmp_eq print_end 0
-pop
-inc
-jmp print_loop
-
-print_end:
-# Last character is a new line
-push 10
-print 0
-pop
-
-pop
-pop
-
-ret
-
-func strlen:
-set len 0
-
-strlen_loop:
-read .
-jmp_eq strlen_end 0
-call Add len 1
-pop len
-pop
-inc
-jmp strlen_loop
-
-strlen_end:
-pop
-pop
-push len
-del len
-ret
-
 func clear:
 clear_loop:
 size

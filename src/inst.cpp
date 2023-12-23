@@ -6,6 +6,7 @@
 #include "include/result.h"
 #include "include/types.h"
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <string>
@@ -90,6 +91,7 @@ void Inst::init_inst_map(void) {
     Inst::inst_map_str["input"] = "input";
     Inst::inst_map_str["set"] = "set";
     Inst::inst_map_str["del"] = "del";
+    Inst::inst_map_str["rand"] = "rand";
 }
 
 using namespace Inst;
@@ -1124,4 +1126,40 @@ Result<None> Import::execute(Mv& mv) const {
 
     }
 
-    return Void();}
+    return Void();
+}
+
+Rand::Rand() {}
+void Rand::print() const {
+    std::cout << "Rand Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> Rand::execute(Mv& mv) const {
+    if (args.size() != 2) {
+        return ERR("Rand: Invalid Argument Length");
+    }
+
+    i32 min;
+    Result r_min = value_or_ident(args[0], &min, this, "Rand", mv);
+    i32 max;
+    Result r_max = value_or_ident(args[1], &max, this, "Rand", mv);
+
+    if (r_min.is_err()) {
+        return r_min.get_err();
+    } else if (r_max.is_err()) {
+        return r_max.get_err();
+    }
+
+    i32 val = (rand()%(max-min+1))+min;
+
+    Inst::Push p = Inst::Push(val);
+    p.line_num = line_num;
+    p.file = file;
+
+    Result r_push = p.execute(mv);
+    if (r_push.is_err()) {
+        return r_push;
+    }
+
+    return Void();
+}

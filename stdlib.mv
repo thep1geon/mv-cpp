@@ -1,0 +1,6 @@
+init_stdlib:
+import "std.mv"
+import "stdmath.mv"
+import "stdstr.mv"
+
+jmp start
