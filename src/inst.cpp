@@ -491,7 +491,7 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
     if (mv.stack[0] != condition) {
         Label::Label label = mv.label_table[literal];
 
-        if (label.m_name != "") {
+        if (label.m_name == "") {
             return ERR("JumpNEQ: Label/Func: " + literal +" not found");
         }
 

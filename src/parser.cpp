@@ -11,9 +11,12 @@ Parser::Parser(std::vector<std::vector<Token>> tokens) {
 }
 
 const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
-    i32 i = 0;
-    for (std::vector<Token>& sublist : m_tokens) {
-        i32 inner_i = 0;;
+    usize i = 0;
+    for (; i < m_tokens.size(); ++i) {
+        std::vector<Token>& sublist = m_tokens[i];
+        if (sublist.size()==0) {continue;}
+
+        usize inner_i = 0;
         Inst::BaseInst* inst;
 
         bool func_inst = false;
@@ -27,7 +30,9 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
                 .fatal();
         }
         
-        for (const Token& tok : sublist) {
+        for (; inner_i < sublist.size(); ++inner_i) {
+            Token& tok = sublist[inner_i];
+
             if (tok.type == TokenType::Keyword) {
                 if (tok.value == "push") {
                     inst = new Inst::Push();
@@ -248,7 +253,7 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
             else if (tok.type == TokenType::Pipe_Op) {
                 pipe_op = true;
 
-                if (inner_i + 1 > (i32)sublist.size()) {
+                if (inner_i + 1 > sublist.size()) {
                     Err("Parser: Pipe operator missing ident", 
                         sublist[0].line_num, sublist[0].file).fatal();
                 } else if (sublist[inner_i+1].type != TokenType::Ident) {
@@ -257,12 +262,13 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
                 }
                 
                 Inst::BaseInst* pop = new Inst::Pop();
-                std::string ident = sublist[++inner_i].value;
+                std::string ident = sublist[inner_i+1].value;
                 pop->args.push_back(Arg(ident, Arg::IDENT));
                 pop->file = sublist[0].file;
                 pop->line_num = sublist[0].line_num;
 
                 m_program.push_back(pop);
+                m_tokens.insert(m_tokens.cbegin()+i+1, std::vector<Token>());
 
                 break;
 
@@ -287,16 +293,13 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
                 inst = new Inst::BaseInst;
             }
 
-            inner_i++;
         }
 
         if (pipe_op) {
-            m_program.insert(m_program.cend()-1, inst);
+            m_program.insert(m_program.end()-1, inst);
         } else {
             m_program.push_back(inst);
         }
-
-        i++;
     }
 
     return m_program;

@@ -21,7 +21,7 @@ public:
     };
 
     Result<None> push(const T& push_data) {
-        if (m_size + 1 >= (i32)N) {
+        if (m_size + 1 > (i32)N) {
             return Err("Stack Overflow");
         }
 

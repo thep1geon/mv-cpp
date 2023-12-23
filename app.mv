@@ -1,7 +1,8 @@
 import "math.mv"
 import "std.mv"
 
-str "This is a \"string\"" | p
+str "This is a \"string\""
+pop p
 
 call print_str p
 
@@ -9,6 +10,27 @@ set x 0
 
 print x
 
-call Add x 15 | x
+call Add x 3
+pop x
 
 print x
+
+call fact 3
+pop fact
+
+print fact
+
+call fact fact
+pop fact
+
+print fact
+
+call clear
+
+push 69
+
+func a:
+dump
+ret
+
+call a 32 ..

@@ -17,6 +17,28 @@ dump
 del nums
 ret
 
+func fact:
+jmp_eq fact_end 0
+jmp_eq fact_end 1
+dupe
+call Dec | n
+
+fact_loop:
+dupe
+dec
+jmp_neq fact_loop 1
+
+push n
+fact_mult_loop:
+pop n
+call Mult
+push n
+dec
+jmp_neq fact_mult_loop 0
+pop
+fact_end:
+ret
+
 func game:
 input "How many times do you want to loop? "
 
