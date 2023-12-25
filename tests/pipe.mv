@@ -1,11 +1,11 @@
-import "../math.mv"
+import "../stdmath.mv"
+import "../stdmath.mv"
+import "../stdmath.mv"
 
-set x 15
+push 15 | x
 
 print x
 
 call Add x 69 | x
 
 print x
-
-dump

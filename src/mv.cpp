@@ -14,8 +14,6 @@
 #include <algorithm>
 
 Mv::Mv() {
-    stack       = Stack<i32, 1024>();
-    call_stack  = Stack<i32, 1024>();
     program     = std::vector<Inst::BaseInst*>();
     label_table = std::map<std::string, Label::Label>();
     variables   = std::map<std::string, i32>();
@@ -80,7 +78,7 @@ Result<None> Mv::execute_inst(const Inst::BaseInst& inst) {
     return inst.execute(*this);
 }
 
-Stack<i32, 1024>& Mv::get_stack() {
+Stack<i32>& Mv::get_stack() {
     return stack;
 }
 
@@ -123,7 +121,6 @@ Result<i32> Mv::include_program_from_file(std::string& filepath) {
 }
 
 i32 Mv::find_memory(usize len) {
-
     for (usize k = 0; k < 500; ++k) {
         for (size_t i = rand()%(4096-len); i < 4096 - len; i++) {
             size_t j;

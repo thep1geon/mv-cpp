@@ -4,25 +4,44 @@
 #include "err.h"
 #include "result.h"
 #include "types.h"
+#include <cstddef>
 #include <cstdlib>
 #include <iostream>
 
-template<typename T, usize N>
+template<typename T>
 class Stack {
-    i32 m_size;
-    T m_data[N];
+    usize m_size;
+    usize m_cap;
+    T* m_data;
+
+    Result<None> resize_stack() {
+        m_cap *= 2;
+        T* new_data = (T*)realloc(m_data, m_cap*sizeof(T));
+
+        if (new_data == NULL) {
+            return Err("Failed to reallocate data");
+        }
+
+        m_data = new_data;
+        return Void(); 
+    }
+
 public:
     Stack() {
         m_size = 0;
+        m_cap = 1024;
+        m_data = (T*)malloc(m_cap * sizeof(T));
     }
 
     ~Stack() {
         m_size = 0;
+        free(m_data);
     };
 
     Result<None> push(const T& push_data) {
-        if (m_size + 1 > (i32)N) {
-            return Err("Stack Overflow");
+        if (m_size + 1 >= m_cap) {
+            Result r = resize_stack();
+            if (r.is_err()) {return r.get_err();}
         }
 
         m_data[m_size++] = push_data;
@@ -31,7 +50,7 @@ public:
     }
 
     Result<T> pop() {
-        if (m_size - 1 < 0) {
+        if (m_size == 0) {
             return Err("Stack Underflow");
         }
 
@@ -39,7 +58,7 @@ public:
     }
 
     Result<T> peek() const {
-        if (m_size - 1 < 0) {
+        if (m_size == 0) {
             return Err("Stack Peek Error");
         }
 
@@ -73,7 +92,7 @@ public:
     }
 
     usize get_cap() const {
-        return N;
+        return m_cap;
     }
 };
 

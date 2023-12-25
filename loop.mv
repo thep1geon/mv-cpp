@@ -1,0 +1,7 @@
+import "stdmath.mv"
+
+set i 0
+loop:
+call Add i 1 | i
+push i
+jmp loop

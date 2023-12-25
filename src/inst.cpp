@@ -613,7 +613,7 @@ void Swap::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Swap::execute(Mv& mv) const {
-    Stack<i32, 1024>& s = mv.get_stack();
+    Stack<i32>& s = mv.get_stack();
     Result a = s.pop();
     Result b = s.pop();
 
@@ -672,7 +672,7 @@ Result<None> Print::execute(Mv& mv) const {
     } else {
 
         Stack s = mv.get_stack();
-        Stack<i32, 1024> ss;
+        Stack<i32> ss;
 
         while (s.get_len() > 0) {
             ss.push(s.pop().get_ok());

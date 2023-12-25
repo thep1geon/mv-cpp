@@ -14,7 +14,7 @@
         ~ func a:
         ~   ~ call Add . 32
         ~   ~ ret .
-    12/21/23 118:14:
+    12/21/23 18:14:
         I found no reason to add this feature
 
 [X] Variables - more like "binding"?

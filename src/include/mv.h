@@ -10,8 +10,8 @@
 #include <vector>
 
 struct Mv {
-    Stack<i32, 1024> stack;
-    Stack<i32, 1024> call_stack;
+    Stack<i32> stack = Stack<i32>();
+    Stack<i32> call_stack = Stack<i32>();
     std::vector<Inst::BaseInst*> program;
     std::map<std::string, Label::Label> label_table;
     std::map<std::string, i32> variables;
@@ -30,7 +30,7 @@ struct Mv {
     Result<None> run();
     Result<None> execute_inst(const Inst::BaseInst& inst);
 
-    Stack<i32, 1024>& get_stack();
+    Stack<i32>& get_stack();
 
     Result<None> program_from_file(const char* filepath);
     Result<i32> include_program_from_file(std::string& filepath);
