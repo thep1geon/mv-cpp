@@ -11,8 +11,8 @@ SRC_FILES := $(shell find $(SRC_DIR) -type f -name "*.cpp")
 OBJ_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.o,$(SRC_FILES))
 DEP_FILES := $(patsubst $(SRC_DIR)/%.cpp,$(OBJ_DIR)/%.d,$(SRC_FILES))
 
-CFLAGS := -Wall -Wextra -ggdb -fsanitize=address -pedantic
-# CFLAGS := -Wall -Wextra -ggdb -pedantic
+CFLAGS := -Wall -Wextra -ggdb -fsanitize=address -pedantic -MMD
+CFLAGS := -Wall -Wextra -pedantic
 LIBS :=
 
 all: $(TARGET)
@@ -22,7 +22,7 @@ all: $(TARGET)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	@mkdir -p $(@D)
-	$(COMPILER) $(CFLAGS) -MMD -c $< -o $@
+	$(COMPILER) $(CFLAGS) -c $< -o $@
 
 $(TARGET): $(OBJ_FILES)
 	@mkdir -p $(@D)

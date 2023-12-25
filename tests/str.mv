@@ -1,6 +1,4 @@
-import "std.mv"
+import "../stdstr.mv"
 
 str "Hello World"
 call print_str
-
-dump
