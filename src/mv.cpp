@@ -16,7 +16,7 @@
 Mv::Mv() {
     program     = std::vector<Inst::BaseInst*>();
     label_table = std::map<std::string, Label::Label>();
-    variables   = std::map<std::string, i32>();
+    variables   = std::map<std::string, f32>();
     inst_ptr    = 0;
     halt        = false;
     debug       = false;
@@ -76,10 +76,6 @@ void Mv::add_inst(Inst::BaseInst* i) {
 
 Result<None> Mv::execute_inst(const Inst::BaseInst& inst) {
     return inst.execute(*this);
-}
-
-Stack<i32>& Mv::get_stack() {
-    return stack;
 }
 
 Result<None> Mv::program_from_file(const char* filepath) {

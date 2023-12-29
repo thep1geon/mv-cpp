@@ -7,7 +7,7 @@ from colorama import Fore
 
 def run_test(file_name: str):
 
-    output: str = os.popen(f"../bin/mv {file_name}.mv").read()
+    output: str = os.popen(f"../bin/mvi {file_name}.mv").read()
 
     if str(file_name + ".test") not in list(os.listdir('.')):
         return [False, "", output]

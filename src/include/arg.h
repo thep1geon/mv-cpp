@@ -10,19 +10,19 @@ struct Arg {
     enum Type { NUM, STR, IDENT };
 
     Type type;
-    std::variant<std::string, i32> data;
+    std::variant<std::string, f32> data;
 
     Arg();
 
     Arg(const std::string& str, Type type);
 
-    Arg(i32 val);
+    Arg(f32 val);
 
     Arg(const char* str);
 
     ~Arg() = default;
 
-    i32 get_num() const;
+    f32 get_num() const;
     std::string get_str() const ;
 
     const char* type_to_cstr() const;

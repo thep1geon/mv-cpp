@@ -10,11 +10,11 @@
 #include <vector>
 
 struct Mv {
-    Stack<i32> stack = Stack<i32>();
+    Stack<f32> stack = Stack<f32>();
     Stack<i32> call_stack = Stack<i32>();
     std::vector<Inst::BaseInst*> program;
     std::map<std::string, Label::Label> label_table;
-    std::map<std::string, i32> variables;
+    std::map<std::string, f32> variables;
     i32 registers[10];
     i32 heap[sizeof(i32) * 1024];
 
@@ -29,8 +29,6 @@ struct Mv {
     void add_inst(Inst::BaseInst* i);
     Result<None> run();
     Result<None> execute_inst(const Inst::BaseInst& inst);
-
-    Stack<i32>& get_stack();
 
     Result<None> program_from_file(const char* filepath);
     Result<i32> include_program_from_file(std::string& filepath);

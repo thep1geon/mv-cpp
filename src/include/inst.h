@@ -107,7 +107,7 @@ struct JumpNEQ : public BaseInst {
 // Stack related Insts
 struct Push : public BaseInst {
     Push();
-    Push(i32 operand);
+    Push(f32 operand);
     void print() const override;
     Result<None> execute(Mv& mv) const override;
 };

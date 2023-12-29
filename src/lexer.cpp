@@ -88,11 +88,11 @@ std::vector<Token> Lexer::tokenize_line(i32 line_num) {
         else if (std::isdigit(peek().get_ok())) {
             buf.push_back(consume());
 
-            while (peek().is_ok() && std::isdigit(peek().get_ok())) {
+            while (peek().is_ok() && (std::isdigit(peek().get_ok()) || peek().get_ok() == '.')) {
                 buf.push_back(consume());
             }
 
-            tokens.push_back(Token(TokenType::Int_Lit, buf, line_num, m_file_path));
+            tokens.push_back(Token(TokenType::Number, buf, line_num, m_file_path));
             buf.clear();
         }
         else if (peek().get_ok() == '"' || peek().get_ok() == '\'') {
@@ -150,14 +150,14 @@ std::vector<Token> Lexer::tokenize_line(i32 line_num) {
         }
         else if (peek().get_ok() == '-') {
             consume();
-            while (peek().is_ok() && std::isdigit(peek().get_ok())) {
+            while (peek().is_ok() && (std::isdigit(peek().get_ok()) || peek().get_ok() == '.')) {
                 buf.push_back(consume());
             }
 
             i32 num = std::stoi(buf);
             num *= -1;
 
-            tokens.push_back(Token(TokenType::Int_Lit, std::to_string(num), line_num, m_file_path));
+            tokens.push_back(Token(TokenType::Number, std::to_string(num), line_num, m_file_path));
             buf.clear();
         }
         else if (std::isspace(peek().get_ok()) || std::isblank(peek().get_ok())) {

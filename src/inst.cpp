@@ -15,7 +15,7 @@
 
 #define ERR(msg) Err(msg, line_num, file)
 
-Result<None> value_or_ident(Arg arg, i32* ptr, const Inst::BaseInst* i, const char* inst_type, Mv& mv) {
+Result<None> value_or_ident(Arg arg, f32* ptr, const Inst::BaseInst* i, const char* inst_type, Mv& mv) {
     if (arg.type == Arg::NUM) {
         *ptr = arg.get_num();
     } else if (arg.type == Arg::IDENT) {
@@ -98,7 +98,7 @@ using namespace Inst;
 
 // BaseInst
 Result<None> BaseInst::execute(Mv& mv) const {
-    mv.get_stack();
+    mv.find_memory(0);
     return Void();
 }
 void BaseInst::print() const { 
@@ -112,14 +112,14 @@ void Add::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Add::execute(Mv& mv) const {
-    Result a = mv.get_stack().pop();
-    Result b = mv.get_stack().pop();
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
 
     if (a.is_err() || b.is_err()) {
         return ERR("Add: not enough elements on the stack");
     }
 
-    return mv.get_stack().push(a.get_ok() + b.get_ok());
+    return mv.stack.push(a.get_ok() + b.get_ok());
 }
 
 Sub::Sub() {}
@@ -128,14 +128,14 @@ void Sub::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Sub::execute(Mv& mv) const {
-    Result a = mv.get_stack().pop();
-    Result b = mv.get_stack().pop();
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
 
     if (a.is_err() || b.is_err()) {
         return ERR("Sub: not enough elements on the stack");
     }
 
-    return mv.get_stack().push(a.get_ok() - b.get_ok());
+    return mv.stack.push(a.get_ok() - b.get_ok());
 }
 
 // Inst::Multiply
@@ -145,14 +145,14 @@ void Multiply::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Multiply::execute(Mv& mv) const {
-    Result a = mv.get_stack().pop();
-    Result b = mv.get_stack().pop();
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
 
     if (a.is_err() || b.is_err()) {
         return ERR("Multiply: not enough elements on the stack");
     }
 
-    return mv.get_stack().push(a.get_ok() * b.get_ok());
+    return mv.stack.push(a.get_ok() * b.get_ok());
 }
 
 Divide::Divide() {}
@@ -161,8 +161,8 @@ void Divide::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Divide::execute(Mv& mv) const {
-    Result a = mv.get_stack().pop();
-    Result b = mv.get_stack().pop();
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
 
     if (a.is_err() || b.is_err()) {
         return ERR("Divide: not enough elements on the stack");
@@ -172,7 +172,7 @@ Result<None> Divide::execute(Mv& mv) const {
         return ERR("Divide by zero error");
     }
 
-    return mv.get_stack().push(a.get_ok() / b.get_ok());
+    return mv.stack.push(a.get_ok() / b.get_ok());
 }
 
 Inc::Inc() {}
@@ -181,13 +181,13 @@ void Inc::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Inc::execute(Mv& mv) const {
-    Result a = mv.get_stack().pop();
+    Result a = mv.stack.pop();
 
     if (a.is_err()) {
         return ERR("Inc: Empty Stack");
     }
 
-    Result r_push = mv.get_stack().push(a.get_ok() + 1);
+    Result r_push = mv.stack.push(a.get_ok() + 1);
 
     if (r_push.is_err()) {
         return ERR("Inc: Stack Overflow");
@@ -202,13 +202,13 @@ void Dec::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Dec::execute(Mv& mv) const {
-    Result a = mv.get_stack().pop();
+    Result a = mv.stack.pop();
 
     if (a.is_err()) {
         return ERR("Dec: Empty Stack");
     }
 
-    Result r_push = mv.get_stack().push(a.get_ok()-1);
+    Result r_push = mv.stack.push(a.get_ok()-1);
 
     if (r_push.is_err()) {
         return ERR("Dec: Stack Overflow");
@@ -255,7 +255,7 @@ Result<None> JumpGT::execute(Mv& mv) const {
         return ERR("JumpGT: Missing Arguments");
     }
 
-    if (mv.get_stack().peek().is_err()) {
+    if (mv.stack.peek().is_err()) {
         return ERR("JumpGT: Empty stack");
     }
 
@@ -270,7 +270,7 @@ Result<None> JumpGT::execute(Mv& mv) const {
         return ERR("JumpGT: Invalid First Argument");
     }
 
-    i32 condition;
+    f32 condition;
 
     Result r_cond = value_or_ident(arg_2, &condition, this, "JumpGT", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
@@ -298,7 +298,7 @@ Result<None> JumpGTE::execute(Mv& mv) const {
         return ERR("JumpGTE: Missing Arguments");
     }
 
-    if (mv.get_stack().peek().is_err()) {
+    if (mv.stack.peek().is_err()) {
         return ERR("JumpGTE: Empty stack");
     }
 
@@ -313,7 +313,7 @@ Result<None> JumpGTE::execute(Mv& mv) const {
         return ERR("JumpGTE: Invalid First Argument");
     }
 
-    i32 condition;
+    f32 condition;
 
     Result r_cond = value_or_ident(arg_2, &condition, this, "JumpGTE", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
@@ -341,7 +341,7 @@ Result<None> JumpLT::execute(Mv& mv) const {
         return ERR("JumpLT: Missing Arguments");
     }
 
-    if (mv.get_stack().peek().is_err()) {
+    if (mv.stack.peek().is_err()) {
         return ERR("JumpLT: Empty stack");
     }
 
@@ -356,7 +356,7 @@ Result<None> JumpLT::execute(Mv& mv) const {
         return ERR("JumpLT: Invalid First Argument");
     }
 
-    i32 condition;
+    f32 condition;
 
     Result r_cond = value_or_ident(arg_2, &condition, this, "JumpLT", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
@@ -384,7 +384,7 @@ Result<None> JumpLTE::execute(Mv& mv) const {
         return ERR("JumpLTE: Missing Arguments");
     }
 
-    if (mv.get_stack().peek().is_err()) {
+    if (mv.stack.peek().is_err()) {
         return ERR("JumpLTE: Empty stack");
     }
 
@@ -399,7 +399,7 @@ Result<None> JumpLTE::execute(Mv& mv) const {
         return ERR("JumpLTE: Invalid First Argument");
     }
 
-    i32 condition;
+    f32 condition;
 
     Result r_cond = value_or_ident(arg_2, &condition, this, "JumpLTE", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
@@ -427,7 +427,7 @@ Result<None> JumpEQ::execute(Mv& mv) const {
         return ERR("JumpEQ: Missing Arguments");
     }
 
-    if (mv.get_stack().peek().is_err()) {
+    if (mv.stack.peek().is_err()) {
         return ERR("JumpEQ: Empty stack");
     }
 
@@ -442,7 +442,7 @@ Result<None> JumpEQ::execute(Mv& mv) const {
         return ERR("JumpEQ: Invalid First Argument");
     }
 
-    i32 condition;
+    f32 condition;
 
     Result r_cond = value_or_ident(arg_2, &condition, this, "JumpEQ", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
@@ -470,7 +470,7 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
         return ERR("JumpNEQ: Missing Arguments");
     }
 
-    if (mv.get_stack().peek().is_err()) {
+    if (mv.stack.peek().is_err()) {
         return ERR("JumpNEQ: Empty stack");
     }
 
@@ -485,7 +485,7 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
         return ERR("JumpNEQ: Invalid First Argument");
     }
 
-    i32 condition;
+    f32 condition;
 
     Result r_cond = value_or_ident(arg_2, &condition, this, "JumpNEQ", mv);
     if (r_cond.is_err()) {return r_cond.get_err();}
@@ -505,7 +505,7 @@ Result<None> JumpNEQ::execute(Mv& mv) const {
 
 // Inst::Push
 Push::Push() {}
-Push::Push(i32 operand) {
+Push::Push(f32 operand) {
     args.push_back(Arg(operand));
 }
 void Push::print() const {
@@ -531,7 +531,7 @@ Result<None> Push::execute(Mv& mv) const {
                 mv.stack.push(c); 
             }
         } else {
-            i32 val;
+            f32 val;
             Result r_val = value_or_ident(a, &val, this, "Push", mv);
             if (r_val.is_err()) { return r_val.get_err();}
 
@@ -549,7 +549,7 @@ void Pop::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Pop::execute(Mv& mv) const {
-    Result r = mv.get_stack().pop();
+    Result r = mv.stack.pop();
 
     if (r.is_err()) {
         return ERR("Pop : Stack Underflow");
@@ -558,7 +558,7 @@ Result<None> Pop::execute(Mv& mv) const {
     if (args.size() == 1) {
         switch (args[0].type) {
             case Arg::NUM:
-                mv.registers[args[0].get_num()] = r.get_ok(); 
+                mv.registers[(i32)args[0].get_num()] = r.get_ok(); 
                 break;
             case Arg::IDENT: {
                 Inst::Set s = Inst::Set();
@@ -591,13 +591,13 @@ Result<None> Dupe::execute(Mv& mv) const {
         index = args[0].get_num();
     }
 
-    Result r_val = mv.get_stack().at(index);
+    Result r_val = mv.stack.at(index);
 
     if (r_val.is_err()) {
         return ERR("Dupe: Empty Stack"); 
     }
 
-    Result r_push = mv.get_stack().push(r_val.get_ok());
+    Result r_push = mv.stack.push(r_val.get_ok());
 
     if (r_push.is_err()) {
         return ERR("Dupe: Stack Overflow");
@@ -613,7 +613,7 @@ void Swap::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Swap::execute(Mv& mv) const {
-    Stack<i32>& s = mv.get_stack();
+    Stack<f32>& s = mv.stack;
     Result a = s.pop();
     Result b = s.pop();
 
@@ -645,7 +645,7 @@ Result<None> Dump::execute(Mv& mv) const {
 
         std::cout << r.get_ok() << "\n";
     } else {
-        mv.get_stack().print();
+        mv.stack.print();
     }
 
     return Void();
@@ -671,7 +671,7 @@ Result<None> Print::execute(Mv& mv) const {
         }
     } else {
 
-        Stack s = mv.get_stack();
+        Stack s = mv.stack;
         Stack<i32> ss;
 
         while (s.get_len() > 0) {
@@ -694,8 +694,8 @@ void Move::print() const {
 Result<None> Move::execute(Mv& mv) const {
     // move dest src
     //      ni  ni
-    i32 dst;
-    i32 src_val;
+    f32 dst;
+    f32 src_val;
     Option<i32> src;
 
     if (args.size() < 1) {
@@ -719,9 +719,9 @@ Result<None> Move::execute(Mv& mv) const {
 
 
     if (src.has_value()) {
-        mv.registers[dst] = src_val;
+        mv.registers[(i32)dst] = src_val;
     } else {
-        Inst::Push p = Inst::Push(mv.registers[dst]);
+        Inst::Push p = Inst::Push(mv.registers[(i32)dst]);
         p.line_num = line_num;
         p.file = file;
         Result r_push = p.execute(mv);
@@ -807,7 +807,7 @@ Result<None> Call::execute(Mv& mv) const {
     mv.call_stack.push(mv.inst_ptr);
 
     for (usize i = 1; i < args.size(); ++i) {
-        i32 num;
+        f32 num;
         Result r_num = value_or_ident(args[i], &num, this, "Call", mv);
         if (r_num.is_err()) {
             return r_num.get_err();
@@ -837,7 +837,7 @@ void Wait::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Wait::execute(Mv& mv) const {
-    mv.get_stack();
+    mv.find_memory(0);
     if (args.size() > 0 && args[0].type == Arg::NUM) {
         sleep(args[0].get_num()); 
     }
@@ -869,7 +869,7 @@ void Read::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Read::execute(Mv& mv) const {
-    i32 address = 0;
+    f32 address = 0;
 
     if (args.size() < 1) {
         return ERR("Read: Missing Argument"); 
@@ -880,9 +880,8 @@ Result<None> Read::execute(Mv& mv) const {
     }
 
     Result r_adr = value_or_ident(args[0], &address, this, "Read", mv);
-    if (r_adr.is_err()) {return r_adr.get_err();}
 
-    Inst::Push p = Inst::Push(mv.heap[address]);
+    Inst::Push p = Inst::Push(mv.heap[(i32)address]);
     p.line_num = line_num;
     p.file = file;
 
@@ -904,8 +903,8 @@ Result<None> Write::execute(Mv& mv) const {
         return ERR("Write: Missing Arguments");
     }
     
-    i32 address = 0;
-    i32 val     = 0;
+    f32 address = 0;
+    f32 val     = 0;
 
 
     Result r_adr = value_or_ident(args[0], &address, this, "Write", mv);
@@ -914,7 +913,7 @@ Result<None> Write::execute(Mv& mv) const {
     Result r_val = value_or_ident(args[1], &val, this, "Write", mv);
     if (r_val.is_err()) {return r_val.get_err();}
 
-    mv.heap[address] = val;
+    mv.heap[(i32)address] = val;
     return Void();
 }
 
@@ -924,8 +923,8 @@ void Arr::print() const {
     for (Arg a : args) { std::cout << a << "\n";}
 }
 Result<None> Arr::execute(Mv& mv) const {
-    i32 len = 0;
-    i32 def = -1;
+    f32 len = 0;
+    f32 def = -1;
 
     Result r_len = value_or_ident(args[0], &len, this, "Arr", mv);
     if (r_len.is_err()) {
@@ -939,7 +938,7 @@ Result<None> Arr::execute(Mv& mv) const {
         }
     }
 
-    i32 start = mv.find_memory(len+1);
+    i32 start = mv.find_memory(((i32)len)+1);
 
     for (i32 i = start; i < start + len; ++i) {
         mv.heap[i] = def;
@@ -1034,7 +1033,7 @@ Result<None> Set::execute(Mv& mv) const {
         return ERR("Set: First Arg Invalid Type");
     }
 
-    i32 val;
+    f32 val;
     Result r_val = value_or_ident(args[1], &val, this, "Set", mv);
     if (r_val.is_err()) {
         return r_val.get_err();
@@ -1139,9 +1138,9 @@ Result<None> Rand::execute(Mv& mv) const {
         return ERR("Rand: Invalid Argument Length");
     }
 
-    i32 min;
+    f32 min;
     Result r_min = value_or_ident(args[0], &min, this, "Rand", mv);
-    i32 max;
+    f32 max;
     Result r_max = value_or_ident(args[1], &max, this, "Rand", mv);
 
     if (r_min.is_err()) {
@@ -1150,7 +1149,7 @@ Result<None> Rand::execute(Mv& mv) const {
         return r_max.get_err();
     }
 
-    i32 val = (rand()%(max-min+1))+min;
+    i32 val = (rand()%((i32)max-(i32)min+1))+min;
 
     Inst::Push p = Inst::Push(val);
     p.line_num = line_num;

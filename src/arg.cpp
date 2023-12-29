@@ -4,16 +4,16 @@
 #include <string>
 #include <variant>
 
-Arg::Arg() : type(NUM), data(0) {}
+Arg::Arg() : type(NUM), data(0.f) {}
 
 Arg::Arg(const std::string& str, Type type) : type(type), data(std::move(str)) {}
 
-Arg::Arg(i32 val) : type(NUM), data(val) {}
+Arg::Arg(f32 val) : type(NUM), data(val) {}
 
 Arg::Arg(const char* str) : type(STR), data(std::move(str)) {}
 
-i32 Arg::get_num() const {
-    return std::get<i32>(data);
+f32 Arg::get_num() const {
+    return std::get<f32>(data);
 }
 
 std::string Arg::get_str() const {

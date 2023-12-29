@@ -16,7 +16,7 @@ enum class TokenType {
     Keyword,
     Label,
     Ident,
-    Int_Lit,
+    Number,
     Str_Lit,
     Dot_Op,
     Pipe_Op,
@@ -52,7 +52,7 @@ struct Token {
             case TokenType::Empty:   return "Empty";
             case TokenType::Keyword: return "Keyword";
             case TokenType::Ident:   return "Ident";
-            case TokenType::Int_Lit: return "Int_Lit";
+            case TokenType::Number: return "Number";
             case TokenType::Str_Lit: return "Str_Lit";
             default:                 return "Unknown TokenType";
         }

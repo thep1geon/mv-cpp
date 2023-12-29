@@ -245,8 +245,8 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
                         sublist[0].line_num, sublist[0].file).fatal();
                 }
             } 
-            else if (tok.type == TokenType::Int_Lit) {
-                inst->args.push_back(Arg(std::atoi(tok.value.c_str())));
+            else if (tok.type == TokenType::Number) {
+                inst->args.push_back(Arg(std::atof(tok.value.c_str())));
             }
             else if (tok.type == TokenType::Str_Lit) {
                 inst->args.push_back(Arg(tok.value, Arg::STR));
