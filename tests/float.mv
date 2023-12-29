@@ -1,0 +1,9 @@
+push 32.32
+push 67.68
+
+add
+
+push 69.4203
+push 123.456
+
+dump

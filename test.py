@@ -19,7 +19,7 @@ def run_test(file_name: str):
 
 
 def record_test(file_name: str):
-    os.system(f"../bin/mv {file_name}.mv > {file_name}.test")
+    os.system(f"../bin/mvi {file_name}.mv > {file_name}.test")
 
 
 def main():
