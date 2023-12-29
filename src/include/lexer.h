@@ -65,8 +65,8 @@ struct Token {
 
 class Lexer {
     std::ifstream m_file;
-    std::string m_file_path;
     usize m_cursor;  
+    std::string m_file_path;
     usize m_line_number;
 
     std::vector<std::vector<Token>> m_tokens;
@@ -76,13 +76,13 @@ class Lexer {
     Result<char> peek(usize offset = 0);
     char consume();
 
-    std::vector<Token> tokenize_line(i32 line_num);
 public:
     Lexer(const char* filepath);
     Lexer();
     ~Lexer();
 
     void set_file(const char* filepath);
+    std::vector<Token> tokenize_line(i32 line_num);
     std::vector<std::vector<Token>> tokenize_file();
 };
 

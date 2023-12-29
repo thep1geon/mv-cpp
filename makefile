@@ -1,7 +1,7 @@
 SRC_DIR := src
 OBJ_DIR := obj
 TARGET_DIR := bin
-TARGET := $(TARGET_DIR)/mv
+TARGET := $(TARGET_DIR)/mvi
 COMPILER := g++
 
 # Find all .cpp files in subdirectories of SRC_DIR
@@ -28,10 +28,7 @@ $(TARGET): $(OBJ_FILES)
 	@mkdir -p $(@D)
 	$(COMPILER) $(CFLAGS) $^ -o $@ $(LIBS)
 
-run: $(TARGET)
-	$(TARGET)
-
 clean:
 	rm -rf $(OBJ_DIR) $(TARGET_DIR)
 
-.PHONY: all run clean
+.PHONY: all clean
