@@ -1,4 +1,6 @@
+#include "include/inst.h"
 #include "include/mv.h"
+#include <cstddef>
 
 int main(int argc, char** argv) {
     if (argc < 2) {
@@ -11,9 +13,7 @@ int main(int argc, char** argv) {
 
     mv.program_from_file(argv[1]);
 
-    if (argc > 2 && std::string(argv[2]) == "debug") {
-        mv.debug = true;
-    }
+    mv.debug = (std::string(argv[argc-1]) == "debug");
 
     Result r = mv.run();
 

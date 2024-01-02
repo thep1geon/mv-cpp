@@ -5,6 +5,15 @@ A simple virtual machine and programming language written in C++. Inspired by Ts
 
 [Tsoding](https://www.youtube.com/@TsodingDaily)
 
+## Quick Start
+
+Run:
+```bash
+make
+bin/mvi app.mv
+```
+Compile the virtual machine and read the file "app.mv"
+
 ## Features
  - [X] Comments
  - [X] labels
@@ -19,7 +28,9 @@ A simple virtual machine and programming language written in C++. Inspired by Ts
 
 ## Project Goals
 
-The primary goal of this project is to create a functional virtual machine and programming language while learning and experimenting with language design, virtual machine architecture, and low-level programming concepts.
+The primary goal of this project is to create a functional virtual machine and 
+programming language while learning and experimenting with language design, 
+virtual machine architecture, and low-level programming concepts.
 
 ## Getting Started
 
@@ -29,10 +40,9 @@ Dependencies
 - gcc
 
 1. Clone the repo: ```git clone https://www.github.com/TheP1geon/mv```
-2. Change the INLCUDE_PATH in main.c to the full path of the include folder of the repo
-3. Compile with the makefile ```make```
-4. [Write](#writing-your-own-programs) your own program or use one of the examples
-5. Run: ```./bin/mv <program> [debug]```
+2. Compile with the makefile ```make```
+3. [Write](#writing-your-own-programs) your own program or use one of the examples
+4. Run: ```./bin/mvi <program> [debug]```
 
 ## Writing Your Own Programs
 
@@ -44,7 +54,7 @@ Dependencies
 ## Examples
 
 ```vasm
-import "std.mv" # Include the standard library
+import "stdstr.mv" # Include the standard library
 
 str "Hello World!" | p # create a new string in memory and set p to the ptr
 call print_str p # Pushes p onto the stack before calling print_str
@@ -63,12 +73,3 @@ Feel free to contribute to the project. Be sure to:
 - Clearly describe the changes made
 - Test the changes to ensure they don't introduce new issues
 - Follow the project's coding style and guidelines
-
-## Quick Start
-
-Run:
-```bash
-make
-bin/mv app.mv
-```
-Compile the virtual machine and read the file "app.mv"
