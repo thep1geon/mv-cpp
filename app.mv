@@ -38,3 +38,17 @@ call clear
 rand 1 10
 
 dump
+
+call clear
+
+set a 15
+set b 15
+
+call gt  a b
+call gte a b
+call lt  a b
+call lte a b
+call eq  a b
+call neq a b
+
+dump

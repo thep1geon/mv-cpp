@@ -26,8 +26,8 @@ language 'Vassembly'
 ## Introduction
 
 The Vassembly language is the assembly of the virtual machine. Both the virtual
-machine and the language are written in C; Therefore the language is also interpreted
-in C
+machine and the language are written in C++; Therefore the language is also interpreted
+in C++
 
 ## Language Basics
 

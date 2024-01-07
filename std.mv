@@ -11,3 +11,111 @@ jmp clear_loop
 clear_end:
 pop
 ret
+
+func gte:
+swap
+jmp_gteq gtet ..
+
+pop
+pop
+
+push 0
+jmp gte_end
+
+gtet:
+pop
+pop
+push 1
+
+gte_end:
+ret
+
+func gt:
+swap
+jmp_gt gtt ..
+
+pop
+pop
+
+push 0
+jmp gt_end
+
+gtt:
+pop
+pop
+push 1
+
+gt_end:
+ret
+
+func lte:
+swap
+jmp_lteq ltet ..
+
+pop
+pop
+
+push 0
+jmp lte_end
+
+ltet:
+pop
+pop
+push 1
+
+lte_end:
+ret
+
+func lt:
+swap
+jmp_lt ltt ..
+
+pop
+pop
+
+push 0
+jmp lt_end
+
+ltt:
+pop
+pop
+push 1
+
+lt_end:
+ret
+
+func eq:
+swap
+jmp_eq eqt ..
+
+pop
+pop
+
+push 0
+jmp eq_end
+
+eqt:
+pop
+pop
+push 1
+
+eq_end:
+ret
+
+func neq:
+swap
+jmp_neq neqt ..
+
+pop
+pop
+
+push 0
+jmp neq_end
+
+neqt:
+pop
+pop
+push 1
+
+neq_end:
+ret

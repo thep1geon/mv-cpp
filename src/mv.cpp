@@ -2,7 +2,6 @@
 #include "include/label.h"
 #include "include/result.h"
 #include "include/lexer.h"
-#include "include/stack.h"
 #include "include/parser.h"
 #include "include/types.h"
 #include <cstdlib>
@@ -93,15 +92,25 @@ Result<None> Mv::program_from_file(const char* filepath) {
 
 Result<i32> Mv::include_program_from_file(std::string& filepath) {
     std::fstream f;
-    f.open(filepath);
+    std::string lib_path = std::string(getenv("HOME"))
+                                        + "/.config/mvi/std/"
+                                        + filepath;
+    f.open(lib_path);
+    bool use_lib = true;
 
     if (!f.is_open()) {
-        f.close();
-        return Err("Failed to open file");
+        use_lib = false;
+        f.open(filepath);
+
+        if (!f.is_open()) {
+            f.close();
+            return Err("Failed to open file");
+        }
     }
 
+    f.close();
 
-    Lexer l(filepath.c_str()); 
+    Lexer l((use_lib ? lib_path : filepath).c_str()); 
 
     std::vector<std::vector<Token>> tokens = l.tokenize_file();
 
