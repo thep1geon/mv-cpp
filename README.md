@@ -8,6 +8,20 @@ A simple virtual machine and programming language written in C++. Inspired by Ts
 ## Quick Start
 
 Run:
+If you want to install the virtual machine on your computer, 
+you can run ```make install```.
+
+This will install the executable and place the standard library in
+```$HOME/.config/mvi/std```.
+
+Then you can run:
+
+```bash
+mvi app.mv
+```
+
+Without installing on the system:
+
 ```bash
 make
 bin/mvi app.mv
