@@ -119,3 +119,112 @@ push 1
 
 neq_end:
 ret
+
+func Shl:
+swap
+shl
+ret
+
+func Shr:
+swap
+shr
+ret
+
+func And:
+band
+ret
+
+func Or:
+bor
+ret
+
+func store64:
+pop num
+pop ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+
+call And num 255 | byte
+call Shr num 8 | num
+write ptr byte
+call Add ptr 1 | ptr
+ret
+
+func load64:
+pop ptr
+call Add ptr 7 | ptr
+
+call Shl 0 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+
+call Shl acc 8 | acc
+read ptr | num
+call Add num acc | acc
+call Sub ptr 1 | ptr
+push acc
+ret

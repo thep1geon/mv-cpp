@@ -1,0 +1,13 @@
+import "stdlib.mv"
+
+jmp init_stdlib
+
+start__:
+
+rand 0 10 | mem
+
+call store64 mem 4096
+
+call load64 mem | num
+
+print num

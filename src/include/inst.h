@@ -264,6 +264,30 @@ public:
     void print() const override;
     Result<None> execute(Mv& mv) const override;
 };
+struct ShiftLeft : public BaseInst {
+public:
+    ShiftLeft();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+struct ShiftRight : public BaseInst {
+public:
+    ShiftRight();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+struct Band : public BaseInst {
+public:
+    Band();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
+struct Bor : public BaseInst {
+public:
+    Bor();
+    void print() const override;
+    Result<None> execute(Mv& mv) const override;
+};
 }
 
 #endif  //__INST_H

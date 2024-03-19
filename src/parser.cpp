@@ -240,6 +240,26 @@ const std::vector<Inst::BaseInst*> Parser::parse_tokens(Mv* mv) {
                     inst->line_num = sublist[0].line_num;
                     inst->file = sublist[0].file;
                 }
+                else if (tok.value == "shl") {
+                    inst = new Inst::ShiftLeft();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
+                else if (tok.value == "shr") {
+                    inst = new Inst::ShiftRight();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
+                else if (tok.value == "band") {
+                    inst = new Inst::Band();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
+                else if (tok.value == "bor") {
+                    inst = new Inst::Bor();
+                    inst->line_num = sublist[0].line_num;
+                    inst->file = sublist[0].file;
+                }
                 else {
                     Err("Unknown Keyword: " + tok.value, 
                         sublist[0].line_num, sublist[0].file).fatal();

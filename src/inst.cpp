@@ -62,6 +62,11 @@ void Inst::init_inst_map(void) {
     Inst::inst_map_str["inc"] = "inc";
     Inst::inst_map_str["dec"] = "dec";
 
+    Inst::inst_map_str["shl"] = "shl";
+    Inst::inst_map_str["shr"] = "shr";
+    Inst::inst_map_str["band"] = "band";
+    Inst::inst_map_str["bor"] = "bor";
+
     Inst::inst_map_str["jmp"] = "jmp";
     Inst::inst_map_str["jmp_gt"] = "jmp_gt";
     Inst::inst_map_str["jmp_gteq"] = "jmp_gteq";
@@ -187,13 +192,7 @@ Result<None> Inc::execute(Mv& mv) const {
         return ERR("Inc: Empty Stack");
     }
 
-    Result r_push = mv.stack.push(a.get_ok() + 1);
-
-    if (r_push.is_err()) {
-        return ERR("Inc: Stack Overflow");
-    }
-
-    return Void();
+    return mv.stack.push(a.get_ok() + 1);
 }
 
 Dec::Dec() {}
@@ -208,13 +207,75 @@ Result<None> Dec::execute(Mv& mv) const {
         return ERR("Dec: Empty Stack");
     }
 
-    Result r_push = mv.stack.push(a.get_ok()-1);
+    return mv.stack.push(a.get_ok() - 1);
+}
 
-    if (r_push.is_err()) {
-        return ERR("Dec: Stack Overflow");
+ShiftLeft::ShiftLeft() {}
+void ShiftLeft::print() const {
+    std::cout << "ShiftLeft Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> ShiftLeft::execute(Mv& mv) const {
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
+
+    if (a.is_err() || b.is_err()) {
+        return ERR("ShiftLeft: Missing Elements From Stack");
     }
 
-    return Void();
+    f32 c = (i32)a.get_ok() << (i32)b.get_ok();
+    return mv.stack.push(c);
+}
+
+ShiftRight::ShiftRight() {}
+void ShiftRight::print() const {
+    std::cout << "ShiftRight Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> ShiftRight::execute(Mv& mv) const {
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
+
+    if (a.is_err() || b.is_err()) {
+        return ERR("ShiftRight: Missing Elements From Stack");
+    }
+
+    f32 c = (i32)a.get_ok() >> (i32)b.get_ok();
+    return mv.stack.push(c);
+}
+
+Band::Band() {}
+void Band::print() const {
+    std::cout << "Band Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> Band::execute(Mv& mv) const {
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
+
+    if (a.is_err() || b.is_err()) {
+        return ERR("Band: Missing Elements From Stack");
+    }
+
+    f32 c = (i32)a.get_ok() & (i32)b.get_ok();
+    return mv.stack.push(c);
+}
+
+Bor::Bor() {}
+void Bor::print() const {
+    std::cout << "Bor Inst\n";
+    for (Arg a : args) { std::cout << a << "\n";}
+}
+Result<None> Bor::execute(Mv& mv) const {
+    Result a = mv.stack.pop();
+    Result b = mv.stack.pop();
+
+    if (a.is_err() || b.is_err()) {
+        return ERR("Bor: Missing Elements From Stack");
+    }
+
+    f32 c = (i32)a.get_ok() | (i32)b.get_ok();
+    return mv.stack.push(c);
 }
 
 // Jumps
@@ -880,6 +941,10 @@ Result<None> Read::execute(Mv& mv) const {
     }
 
     Result r_adr = value_or_ident(args[0], &address, this, "Read", mv);
+
+    if (address < 0 || address > 10 * 1024 * 1024 - 1) {
+        return ERR("Read: Memory Address out of Bounds!");
+    }
 
     Inst::Push p = Inst::Push(mv.heap[(i32)address]);
     p.line_num = line_num;

@@ -37,3 +37,9 @@
     ~ str "Hello World" | str_ptr # Would also work too
 
 [X] Escape Character Support
+
+[ ] Further Connect to the OS
+    ~ Better memory system
+    ~ file io
+    ~ stdin?
+    ~ More syscalls

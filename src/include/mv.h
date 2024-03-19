@@ -16,7 +16,7 @@ struct Mv {
     std::map<std::string, Label::Label> label_table;
     std::map<std::string, f32> variables;
     i32 registers[10];
-    i32 heap[sizeof(i32) * 1024];
+    u8* heap;
 
     usize inst_ptr;
 

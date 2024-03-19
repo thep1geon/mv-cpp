@@ -3,4 +3,4 @@ import "std.mv"
 import "stdmath.mv"
 import "stdstr.mv"
 
-jmp start
+jmp start__

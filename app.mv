@@ -2,7 +2,9 @@ import "stdlib.mv"
 
 jmp init_stdlib
 
-start:
+start__:
+str "---------------" | line
+
 str "This is a \"string\"" | p
 
 call print_str p
@@ -52,3 +54,39 @@ call eq  a b
 call neq a b
 
 dump
+
+call clear
+
+call print_str line
+str "Hello World" | p
+call print_str p
+call print_str line
+
+call clear
+
+write 0 255
+read 0
+
+dump
+
+call clear
+
+call Shl 4019 3
+
+dump
+
+call clear
+
+call And 92 46
+
+dump
+
+call clear
+
+call print_str line
+
+call store64 0 4096
+
+call load64 0 | num
+
+print num

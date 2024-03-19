@@ -14,6 +14,7 @@ class Result {
     bool m_has_ok = false;
     bool m_has_err = false;
     bool m_has_void = false;
+
 public:
     Result() {
         m_err = Ok();
@@ -52,7 +53,7 @@ public:
         return m_ok;
     };
 
-    const Err&  get_err() const {
+    const Err& get_err() const {
         return m_err;
     };
 

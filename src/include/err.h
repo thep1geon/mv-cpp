@@ -10,7 +10,6 @@ enum class ErrType {
 };
 
 class Err {
-protected:
     ErrType m_type;
     std::string m_msg;
     i32 m_line_num;

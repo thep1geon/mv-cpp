@@ -20,7 +20,7 @@ Mv::Mv() {
     halt        = false;
     debug       = false;
 
-    memset(heap, 0, 4096 * sizeof(i32));
+    heap = (u8*)calloc(10 * 1024 * 1024, sizeof(u8));
     srand(time(NULL));
 }
 
@@ -28,6 +28,7 @@ Mv::~Mv() {
     for (usize i = 0; i < this->program.size(); ++i) {
         delete this->program[i];
     }
+    free(heap);
 }
 
 Result<None> Mv::run() {
